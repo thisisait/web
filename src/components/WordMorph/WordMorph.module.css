@@ -63,12 +63,20 @@
 
 /* The bold "T" glyph has a wide right-side bearing (advance width past the
    visual end of its crossbar), so even with zero margin the rest still
-   appears gapped. Compensate with a small negative pull. */
+   appears gapped. Compensate by trimming the right half of T's cell and
+   pulling the rest underneath the overhang. */
 .slot[data-letter="T"] .anchor {
   padding-right: 0;
+  margin-right: -0.18em;
 }
 .slot[data-letter="T"] .rest {
-  margin-left: -0.08em;
+  margin-left: 0;
+}
+
+/* "I" sits flush against its rest on its own — no pull needed; any negative
+   margin overlaps the first glyph of the rest. */
+.slot[data-letter="I"] .anchor {
+  padding-right: 0;
 }
 
 /* Hero mode: expanded word is noticeably smaller than its anchor letter so

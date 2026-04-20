@@ -127,7 +127,7 @@ function LetterSlot({ letter, word, expanded, reduced }: LetterSlotProps) {
 
   return (
     <motion.span
-      layout={!reduced}
+      layout={reduced ? false : "position"}
       transition={reduced ? { duration: 0 } : springConfig}
       className={styles.slot}
       data-letter={letter}
