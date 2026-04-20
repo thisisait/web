@@ -2,12 +2,18 @@ import type { SectionId } from "../../types/sections";
 
 export type Triplet = { A: string; I: string; T: string };
 
+// Every triplet below is curated so that
+//   (a) each individual word is a plausible expansion of A / I / T, and
+//   (b) the three words, read together, form a coherent phrase.
+// Keep this invariant when adding new triplets — the hero cycles through
+// them one letter at a time, but the header shows all three at once.
 export const HERO_POOL: Triplet[] = [
   { A: "Agentic", I: "Infrastructure", T: "Technology" },
-  { A: "Automated", I: "Information", T: "Takeover" },
-  { A: "Autonomous", I: "Integrated", T: "Transparency" },
-  { A: "All-in-one", I: "Intelligent", T: "Transformation" },
-  { A: "Apple-native", I: "Independent", T: "Turnkey" },
+  { A: "Autonomous", I: "Integrated", T: "Toolchain" },
+  { A: "Apple-native", I: "Infrastructure", T: "Tooling" },
+  { A: "All-in-one", I: "Independent", T: "Technology" },
+  { A: "Automated", I: "Intelligent", T: "Transformation" },
+  { A: "Authentic", I: "Indie", T: "Tech" },
 ];
 
 export const SECTION_WORDS: Record<SectionId, Triplet> = {

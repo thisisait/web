@@ -8,16 +8,18 @@
   color: var(--ink);
   line-height: 1;
   white-space: nowrap;
+  max-width: 100%;
 }
 
 .glyphs {
   display: inline-flex;
   align-items: baseline;
   gap: 0.22em;
+  max-width: 100%;
 }
 
 .xxl {
-  font-size: clamp(5rem, 22vw, 18rem);
+  font-size: clamp(4.5rem, 20vw, 15rem);
 }
 .md {
   font-size: clamp(1.5rem, 2vw, 2.25rem);
@@ -46,6 +48,24 @@
   display: inline-flex;
   overflow: hidden;
   white-space: nowrap;
+  letter-spacing: -0.015em;
+  /* Subtle shift so the smaller word visually sits on the same baseline as
+     the huge anchor letter, compensating for differing cap heights. */
+  transform: translateY(-0.02em);
+}
+
+/* Hero mode: expanded word is noticeably smaller than its anchor letter so
+   "Infrastructure" fits on a 360px viewport without clipping. */
+.xxl .rest {
+  font-size: clamp(1.1rem, 5vw, 4rem);
+  margin-left: 0.04em;
+}
+
+/* Header mode: keep the expanded word close to anchor size for readability. */
+.md .rest,
+.sm .rest {
+  font-size: 0.85em;
+  margin-left: 0.03em;
 }
 
 .char {
@@ -56,6 +76,12 @@
 @media (max-width: 720px) {
   .mode_header.xxl,
   .mode_header.md {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
+  }
+  .xxl {
+    font-size: clamp(4rem, 22vw, 8rem);
+  }
+  .xxl .rest {
+    font-size: clamp(0.95rem, 4.2vw, 1.6rem);
   }
 }
