@@ -12,6 +12,13 @@ export const LOCALE_LABELS: Record<LocaleCode, string> = {
 export interface Messages {
   localeName: string;
 
+  /** SEO metadata injected into <title> and <meta name="description">
+   *  both at build time (per-locale HTML) and at runtime (on locale switch). */
+  seo: {
+    title: string;
+    description: string;
+  };
+
   header: {
     homeAria: string;
     nav: {

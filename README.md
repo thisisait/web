@@ -67,6 +67,50 @@ Per-section word morphs are defined in `src/components/WordMorph/wordPools.ts`.
 
 ---
 
+## Translations
+
+Locale bundles live in `src/i18n/`:
+
+- `en.ts`, `cs.ts`, `de.ts`, `fr.ts` — one file per language, all must implement `Messages`.
+- `index.tsx` — `I18nProvider`, `useI18n`, URL routing.
+- `types.ts` — the `Messages` interface (source of truth).
+
+**Routing:** `/` serves EN. `/cs/`, `/de/`, `/fr/` serve the other locales. The locale switcher in the footer calls `history.pushState`, preserving the hash (`/cs/#cta` works). A Vite plugin copies `dist/index.html` into each locale subdirectory at build with locale-specific `<title>`, `<meta description>`, `<html lang>`, and `<link rel="canonical">`.
+
+**Adding a locale:** create `src/i18n/xy.ts` implementing `Messages`, register it in `DICTIONARIES` in `index.tsx`, add `"xy"` to `LOCALES` in `types.ts`, add it to the `LOCALE_SEO` array in `vite.config.ts` and to `public/sitemap.xml`.
+
+---
+
+## SEO & indexing
+
+**Built-in:**
+
+- `<title>` + `<meta description>` per locale (both build-time and runtime)
+- Canonical + `hreflang` alternates per locale
+- `sitemap.xml` referenced from `robots.txt`
+- JSON-LD: `Organization` + `WebSite` schemas
+- Open Graph + Twitter card meta (updated on locale change)
+- Semantic HTML, `<html lang>` attribute, sr-only wordmark text
+
+**Automated on every deploy:**
+
+- [IndexNow](https://www.indexnow.org/) ping — notifies Bing, Seznam.cz, Yandex, and Naver when the site changes. Key lives in `public/<key>.txt`; workflow step `indexnow` in `.github/workflows/deploy.yml` POSTs the URL list after a successful Pages deploy. Google does **not** participate in IndexNow.
+
+**Manual one-time setup (owner actions):**
+
+1. **Google Search Console** — add `thisisait.eu` as a Domain property, verify via DNS TXT record (DNS provider → add TXT at apex), then submit `https://thisisait.eu/sitemap.xml`. Google crawls automatically after that; there is no public indexing API for regular pages.
+2. **Bing Webmaster Tools** — add site, import from GSC or verify separately. IndexNow already pings Bing, but the Console gives visibility.
+3. **Seznam.cz Webmaster** ([search.seznam.cz/pridat-stranku](https://search.seznam.cz/pridat-stranku)) — submit the site once. Picked up via IndexNow afterwards.
+4. **Plausible / Umami / GA4** — optional, add a single `<script>` inside the analytics slot in `index.html`.
+
+**What you cannot automate:**
+
+- Google indexing speed. New domains typically take 2–6 weeks to appear in SERPs even with perfect technical SEO.
+- Google's `/ping?sitemap=...` endpoint was deprecated in June 2023 and no longer works.
+- Google's Indexing API only accepts `JobPosting` and `BroadcastEvent` schemas, not marketing pages.
+
+---
+
 ## Deploy
 
 `main` is auto-deployed to GitHub Pages by `.github/workflows/deploy.yml`.

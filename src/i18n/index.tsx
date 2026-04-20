@@ -37,6 +37,16 @@ function detectInitial(): LocaleCode {
   return detectFromPath(window.location.pathname);
 }
 
+function updateMeta(name: string, content: string, attr: "name" | "property" = "name") {
+  let el = document.querySelector<HTMLMetaElement>(`meta[${attr}="${name}"]`);
+  if (!el) {
+    el = document.createElement("meta");
+    el.setAttribute(attr, name);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("content", content);
+}
+
 interface I18nContextValue {
   locale: LocaleCode;
   setLocale: (code: LocaleCode) => void;
@@ -50,6 +60,13 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.lang = locale;
+    const t = DICTIONARIES[locale];
+    document.title = t.seo.title;
+    updateMeta("description", t.seo.description);
+    updateMeta("og:title", t.seo.title, "property");
+    updateMeta("og:description", t.seo.description, "property");
+    updateMeta("twitter:title", t.seo.title);
+    updateMeta("twitter:description", t.seo.description);
   }, [locale]);
 
   // Back/forward navigation: keep React state in sync with the URL.

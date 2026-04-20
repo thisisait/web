@@ -3,6 +3,12 @@ import type { Messages } from "./types";
 const de: Messages = {
   localeName: "Deutsch",
 
+  seo: {
+    title: "This is AIT · Agentic IT — selbstgehostet, Open Source",
+    description:
+      "Eine neue Kategorie Infrastruktur — selbstgehostet, agentisch, Open Source. Ein Stack, vierzig Dienste, null SaaS-Rechnungen.",
+  },
+
   header: {
     homeAria: "This is AIT — Startseite",
     nav: {

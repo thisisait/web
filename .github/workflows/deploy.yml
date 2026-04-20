@@ -46,3 +46,40 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  indexnow:
+    needs: deploy
+    runs-on: ubuntu-latest
+    # Only ping IndexNow for production deploys on main.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'workflow_dispatch'
+    steps:
+      - name: Notify IndexNow (Bing, Seznam, Yandex, Naver)
+        env:
+          INDEXNOW_KEY: fd3da1fe5cf8d13f3d7ba25a5b7ced34
+          SITE: https://thisisait.eu
+        run: |
+          payload=$(cat <<JSON
+          {
+            "host": "thisisait.eu",
+            "key": "${INDEXNOW_KEY}",
+            "keyLocation": "${SITE}/${INDEXNOW_KEY}.txt",
+            "urlList": [
+              "${SITE}/",
+              "${SITE}/cs/",
+              "${SITE}/de/",
+              "${SITE}/fr/"
+            ]
+          }
+          JSON
+          )
+          echo "Submitting to IndexNow…"
+          code=$(curl -s -o /tmp/indexnow.out -w "%{http_code}" \
+            -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json" \
+            -d "$payload")
+          echo "HTTP ${code}"
+          cat /tmp/indexnow.out || true
+          # IndexNow accepts 200 or 202 as success; anything else is a warning.
+          if [ "$code" != "200" ] && [ "$code" != "202" ]; then
+            echo "::warning::IndexNow returned ${code} (non-blocking)"
+          fi
