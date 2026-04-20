@@ -1,0 +1,43 @@
+.section {
+  padding: clamp(80px, 10vw, 140px) 0;
+  position: relative;
+}
+
+.soft {
+  background: var(--bg-soft);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.head {
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.78rem;
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.subtitle {
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  color: var(--ink-soft);
+  max-width: 65ch;
+  line-height: 1.5;
+}

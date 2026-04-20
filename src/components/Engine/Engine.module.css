@@ -1,0 +1,147 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.prose {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--ink-soft);
+  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  line-height: 1.6;
+  max-width: 56ch;
+}
+
+.prose strong {
+  color: var(--ink);
+}
+
+.prose em {
+  color: var(--ink);
+  font-style: italic;
+}
+
+.terminal {
+  border-radius: var(--radius-md);
+  background: #0b0b0d;
+  color: #e6e6e6;
+  box-shadow: var(--shadow-lift);
+  overflow: hidden;
+  font-family: var(--font-mono);
+  border: 1px solid var(--line);
+  position: relative;
+}
+
+.terminalBar {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #111114;
+}
+
+.terminalBar span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #3a3a3a;
+}
+
+.terminalBar span:nth-child(1) {
+  background: #ff5f57;
+}
+.terminalBar span:nth-child(2) {
+  background: #ffbd2e;
+}
+.terminalBar span:nth-child(3) {
+  background: #28ca42;
+}
+
+.terminalBody {
+  margin: 0;
+  padding: 20px 22px;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  overflow-x: auto;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 3px,
+      rgba(255, 255, 255, 0.02) 3px,
+      rgba(255, 255, 255, 0.02) 4px
+    );
+}
+
+.prompt {
+  color: var(--accent-eco);
+}
+
+.cmd {
+  color: #e6e6e6;
+}
+
+.arrow {
+  color: var(--accent-primary);
+}
+
+.dim {
+  color: #8a8a8a;
+}
+
+.features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.feature {
+  padding: 20px;
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.featureN {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent-primary);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.featureLabel {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.featureNote {
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .features {
+    grid-template-columns: 1fr;
+  }
+}

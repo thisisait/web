@@ -1,0 +1,61 @@
+.wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.glyphs {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.22em;
+}
+
+.xxl {
+  font-size: clamp(5rem, 22vw, 18rem);
+}
+.md {
+  font-size: clamp(1.5rem, 2vw, 2.25rem);
+  letter-spacing: -0.02em;
+}
+.sm {
+  font-size: 1.25rem;
+}
+
+.mode_header .glyphs {
+  gap: 0.18em;
+}
+
+.slot {
+  display: inline-flex;
+  align-items: baseline;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.anchor {
+  display: inline-block;
+}
+
+.rest {
+  display: inline-flex;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.char {
+  display: inline-block;
+  white-space: pre;
+}
+
+@media (max-width: 720px) {
+  .mode_header.xxl,
+  .mode_header.md {
+    font-size: 1.15rem;
+  }
+}
