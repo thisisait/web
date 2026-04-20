@@ -61,6 +61,16 @@
      "T·echnology" reads as two separate things instead of one word. */
 }
 
+/* The bold "T" glyph has a wide right-side bearing (advance width past the
+   visual end of its crossbar), so even with zero margin the rest still
+   appears gapped. Compensate with a small negative pull. */
+.slot[data-letter="T"] .anchor {
+  padding-right: 0;
+}
+.slot[data-letter="T"] .rest {
+  margin-left: -0.08em;
+}
+
 /* Hero mode: expanded word is noticeably smaller than its anchor letter so
    long words (Infrastructure, Transformation) fit on a 360px viewport. */
 .xxl .rest {

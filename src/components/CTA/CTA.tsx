@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { FiCoffee, FiGithub, FiStar } from "react-icons/fi";
 import { Section } from "../Section/Section";
 import { LINKS } from "../../config/links";
+import { useI18n } from "../../i18n";
 import { useGitHubStars } from "./useGitHubStars";
 import styles from "./CTA.module.css";
 
@@ -13,17 +14,15 @@ function formatStars(n: number | null): string {
 
 export function CTA() {
   const stars = useGitHubStars();
+  const { t } = useI18n();
+  const starsLabel = formatStars(stars);
 
   return (
     <Section
       id="cta"
-      kicker="Get involved"
-      title={<>Be part of this.</>}
-      subtitle={
-        <>
-          We're early. The repo is public. The category is not written yet.
-        </>
-      }
+      kicker={t.cta.kicker}
+      title={t.cta.title}
+      subtitle={t.cta.subtitle}
     >
       <div className={styles.grid}>
         <motion.a
@@ -37,16 +36,13 @@ export function CTA() {
           <div className={styles.iconStar} aria-hidden="true">
             <FiGithub />
           </div>
-          <h3 className={styles.cardTitle}>Star the repo</h3>
-          <p className={styles.cardBody}>
-            Help us reach the first 1,000 stars. It's how open-source gets
-            found.
-          </p>
+          <h3 className={styles.cardTitle}>{t.cta.star.title}</h3>
+          <p className={styles.cardBody}>{t.cta.star.body}</p>
           <span className={styles.buttonPrimary}>
             <FiStar aria-hidden="true" />
-            Star on GitHub
-            <span className={styles.count} aria-label={`Current stars: ${formatStars(stars)}`}>
-              {formatStars(stars)}
+            {t.cta.star.button}
+            <span className={styles.count} aria-label={t.cta.star.starsAria(starsLabel)}>
+              {starsLabel}
             </span>
           </span>
         </motion.a>
@@ -62,27 +58,22 @@ export function CTA() {
           <div className={styles.iconCoffee} aria-hidden="true">
             <FiCoffee />
           </div>
-          <h3 className={styles.cardTitle}>Buy me a coffee</h3>
-          <p className={styles.cardBody}>
-            This is built nights and weekends. A coffee keeps the playbook
-            alive.
-          </p>
+          <h3 className={styles.cardTitle}>{t.cta.coffee.title}</h3>
+          <p className={styles.cardBody}>{t.cta.coffee.body}</p>
           <span className={styles.buttonWarm}>
             <FiCoffee aria-hidden="true" />
-            Buy me a coffee
+            {t.cta.coffee.button}
           </span>
         </motion.a>
       </div>
 
-      <nav className={styles.secondary} aria-label="Secondary links">
-        {LINKS.docs && <a href={LINKS.docs}>Read the docs</a>}
-        {LINKS.twitter && <a href={LINKS.twitter}>Follow on Twitter/X</a>}
-        {LINKS.matrix && <a href={LINKS.matrix}>Join the Matrix channel</a>}
-        {LINKS.rss && <a href={LINKS.rss}>RSS</a>}
+      <nav className={styles.secondary} aria-label={t.cta.secondaryAria}>
+        {LINKS.docs && <a href={LINKS.docs}>{t.cta.readDocs}</a>}
+        {LINKS.twitter && <a href={LINKS.twitter}>{t.cta.followTwitter}</a>}
+        {LINKS.matrix && <a href={LINKS.matrix}>{t.cta.joinMatrix}</a>}
+        {LINKS.rss && <a href={LINKS.rss}>{t.cta.rss}</a>}
         {!LINKS.docs && !LINKS.twitter && !LINKS.matrix && !LINKS.rss && (
-          <span className={styles.muted}>
-            Docs · Twitter · Matrix · RSS — coming soon.
-          </span>
+          <span className={styles.muted}>{t.cta.secondaryMuted}</span>
         )}
       </nav>
     </Section>

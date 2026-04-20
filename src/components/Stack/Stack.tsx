@@ -1,29 +1,25 @@
 import { motion } from "framer-motion";
 import { Section } from "../Section/Section";
+import { useI18n } from "../../i18n";
 import { CATEGORY_ORDER, LOGOS } from "./logos";
 import { LogoTile } from "./LogoTile";
 import styles from "./Stack.module.css";
 
 export function Stack() {
+  const { t } = useI18n();
   const grouped = CATEGORY_ORDER.map((cat) => ({
     category: cat,
     items: LOGOS.filter((l) => l.category === cat),
   })).filter((g) => g.items.length > 0);
 
-  // Marquee row: all logos, doubled so the loop is seamless.
   const marquee = [...LOGOS, ...LOGOS];
 
   return (
     <Section
       id="stack"
-      kicker="The stack"
-      title={<>Forty services. One stack. All open source.</>}
-      subtitle={
-        <>
-          Every logo below is a FOSS project we integrate, orchestrate, and
-          secure together so you don't have to.
-        </>
-      }
+      kicker={t.stack.kicker}
+      title={t.stack.title}
+      subtitle={t.stack.subtitle}
     >
       <div className={styles.marquee} aria-hidden="true">
         <div className={styles.marqueeTrack}>

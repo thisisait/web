@@ -1,31 +1,14 @@
 import { motion } from "framer-motion";
 import { Section } from "../Section/Section";
+import { useI18n } from "../../i18n";
 import styles from "./Values.module.css";
 
-const VALUES = [
-  {
-    title: "100% FOSS.",
-    body: "No proprietary dependencies. Forkable on day one.",
-  },
-  {
-    title: "Self-hosted by default.",
-    body: "Your data never leaves your machine.",
-  },
-  {
-    title: "Reproducible.",
-    body: "One command, every time. No snowflakes.",
-  },
-  {
-    title: "Agentic.",
-    body: "The stack maintains itself so you don't have to.",
-  },
-];
-
 export function Values() {
+  const { t } = useI18n();
   return (
-    <Section id="values" kicker="Principles" title={<>Non-negotiables.</>}>
+    <Section id="values" kicker={t.values.kicker} title={t.values.title}>
       <ul className={styles.pills}>
-        {VALUES.map((v, i) => (
+        {t.values.items.map((v, i) => (
           <motion.li
             key={v.title}
             className={styles.pill}

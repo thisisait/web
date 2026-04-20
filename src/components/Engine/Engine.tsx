@@ -1,39 +1,24 @@
 import { Section } from "../Section/Section";
+import { useI18n } from "../../i18n";
 import styles from "./Engine.module.css";
 
-const FEATURES = [
-  { n: "45", label: "Ansible roles", note: "every service owned by a role" },
-  { n: "SSO", label: "everywhere", note: "OIDC + forward-auth, no exceptions" },
-  { n: "4", label: "RBAC tiers", note: "admin / manager / user / guest" },
-  { n: "ARM64", label: "Apple Silicon", note: "MLX-accelerated inference" },
-];
-
 export function Engine() {
+  const { t } = useI18n();
   return (
     <Section
       id="engine"
       band="soft"
-      kicker="Under the hood"
-      title={<>The engine: nOS.</>}
-      subtitle={<>The integration layer is the product.</>}
+      kicker={t.engine.kicker}
+      title={t.engine.title}
+      subtitle={t.engine.subtitle}
     >
       <div className={styles.grid}>
         <div className={styles.prose}>
-          <p>
-            Every FOSS service works in isolation. The hard part — and the part
-            that costs engineering teams millions — is making them work{" "}
-            <em>together</em>: one login, one audit trail, one backup strategy,
-            one upgrade process.
-          </p>
-          <p>
-            <strong>nOS</strong> is the open-source integration engine behind
-            AIT. It's an Ansible playbook that orchestrates 45 roles, wires
-            40+ services together through Authentik SSO, and gives the whole
-            stack reproducibility you can verify:
-          </p>
+          <p>{t.engine.para1}</p>
+          <p>{t.engine.para2}</p>
         </div>
 
-        <div className={styles.terminal} aria-label="Example terminal command">
+        <div className={styles.terminal} aria-label={t.engine.terminalAriaLabel}>
           <div className={styles.terminalBar}>
             <span />
             <span />
@@ -61,7 +46,7 @@ export function Engine() {
       </div>
 
       <ul className={styles.features}>
-        {FEATURES.map((f) => (
+        {t.engine.features.map((f) => (
           <li key={f.label} className={styles.feature}>
             <span className={styles.featureN}>{f.n}</span>
             <span className={styles.featureLabel}>{f.label}</span>

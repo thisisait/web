@@ -1,4 +1,5 @@
 import { ActiveSectionProvider } from "./hooks/useActiveSection";
+import { I18nProvider } from "./i18n";
 import { Header } from "./components/Header/Header";
 import { Hero } from "./components/Hero/Hero";
 import { Problem } from "./components/Problem/Problem";
@@ -12,19 +13,21 @@ import { Footer } from "./components/Footer/Footer";
 
 export default function App() {
   return (
-    <ActiveSectionProvider>
-      <Header />
-      <main id="main">
-        <Hero />
-        <Problem />
-        <Manifesto />
-        <Stack />
-        <UseCases />
-        <Engine />
-        <Values />
-        <CTA />
-      </main>
-      <Footer />
-    </ActiveSectionProvider>
+    <I18nProvider>
+      <ActiveSectionProvider>
+        <Header />
+        <main id="main">
+          <Hero />
+          <Problem />
+          <Manifesto />
+          <Stack />
+          <UseCases />
+          <Engine />
+          <Values />
+          <CTA />
+        </main>
+        <Footer />
+      </ActiveSectionProvider>
+    </I18nProvider>
   );
 }

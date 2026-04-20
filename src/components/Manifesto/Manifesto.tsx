@@ -1,54 +1,49 @@
+import { Fragment } from "react";
 import { motion } from "framer-motion";
 import { Section } from "../Section/Section";
+import { useI18n } from "../../i18n";
 import styles from "./Manifesto.module.css";
 
-const TIMELINE = [
-  { era: "1960s", label: "Mainframe", note: "one machine, everyone" },
-  { era: "1980s", label: "PC", note: "power to the desk" },
-  { era: "2000s", label: "Internet", note: "the web happens" },
-  { era: "2010s", label: "Cloud", note: "power to someone else" },
-  { era: "2020s", label: "Self-hosted", note: "back to the desk" },
-  { era: "NOW", label: "AIT", note: "self-managing, agentic", highlight: true },
-];
+/** Replaces %STRONG_START% / %STRONG_END% with a real <strong> element while
+ *  keeping the surrounding text as plain string segments. Keeps locale files
+ *  free of JSX. */
+function renderWithStrong(text: string): React.ReactNode {
+  const parts = text.split(/%STRONG_START%|%STRONG_END%/);
+  return parts.map((part, i) =>
+    // Odd indices are inside the strong marker (split returns before/inside/after).
+    i % 2 === 1 ? (
+      <strong key={i}>{part}</strong>
+    ) : (
+      <Fragment key={i}>{part}</Fragment>
+    ),
+  );
+}
 
 export function Manifesto() {
+  const { t } = useI18n();
+  const entries = t.manifesto.timeline;
+
   return (
     <Section
       id="manifesto"
       band="soft"
-      kicker="Manifesto"
-      title={<>The mainframe came home.</>}
+      kicker={t.manifesto.kicker}
+      title={t.manifesto.title}
     >
       <div className={styles.grid}>
         <div className={styles.prose}>
-          <p>
-            In the 1960s, one machine served everyone. Then PCs decentralized
-            computing — power came to your desk. Then the cloud re-centralized
-            it — power went back to someone else's datacenter.
-          </p>
-          <p>
-            Now Apple Silicon runs circles around the rack-mounted servers of a
-            decade ago. Docker standardized deployment. Ansible made
-            infrastructure reproducible. Local LLMs made a built-in DevOps
-            agent possible.
-          </p>
-          <p>
-            <strong>AIT — Agentic IT —</strong> is the collapse of that arc.
-            One machine on your desk, running your entire digital life.
-            Self-hosted. Self-updating. Self-managing. Open source end-to-end.
-          </p>
-          <p className={styles.closing}>
-            This isn't a homelab hobby. It's the next category of
-            infrastructure.
-          </p>
+          {t.manifesto.paragraphs.map((p, i) => (
+            <p key={i}>{renderWithStrong(p)}</p>
+          ))}
+          <p className={styles.closing}>{t.manifesto.closing}</p>
         </div>
         <ol className={styles.timeline}>
-          {TIMELINE.map((entry, idx) => (
+          {entries.map((entry, idx) => (
             <motion.li
               key={entry.era}
               className={[
                 styles.entry,
-                entry.highlight ? styles.highlight : "",
+                idx === entries.length - 1 ? styles.highlight : "",
               ].join(" ")}
               initial={{ opacity: 0, x: 16 }}
               whileInView={{ opacity: 1, x: 0 }}

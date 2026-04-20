@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Section } from "../Section/Section";
+import { useI18n } from "../../i18n";
 import { SavingsCounter } from "./SavingsCounter";
 import styles from "./UseCases.module.css";
 
@@ -25,17 +26,18 @@ const ROWS: Row[] = [
 const TOTAL = ROWS.reduce((s, r) => s + r.monthly, 0);
 
 export function UseCases() {
+  const { t } = useI18n();
   return (
     <Section
       id="use-cases"
-      kicker="What it replaces"
-      title={<>Replace your cloud, one tab at a time.</>}
+      kicker={t.useCases.kicker}
+      title={t.useCases.title}
     >
       <div className={styles.tableWrap}>
         <div className={styles.headerRow} role="row">
-          <span>You're paying for</span>
-          <span>You could self-host</span>
-          <span className={styles.priceCol}>Monthly bill</span>
+          <span>{t.useCases.colSaas}</span>
+          <span>{t.useCases.colFoss}</span>
+          <span className={styles.priceCol}>{t.useCases.colPrice}</span>
         </div>
         {ROWS.map((row, idx) => (
           <motion.div
@@ -63,27 +65,24 @@ export function UseCases() {
 
       <div className={styles.summary}>
         <div>
-          <span className={styles.summaryLabel}>A typical stack</span>
+          <span className={styles.summaryLabel}>{t.useCases.summaryTypical}</span>
           <span className={styles.summaryTotal}>
             <SavingsCounter value={TOTAL} />
-            <small>/month</small>
+            <small>{t.useCases.perMonth}</small>
           </span>
         </div>
         <div className={styles.arrow} aria-hidden="true">
           →
         </div>
         <div>
-          <span className={styles.summaryLabel}>AIT</span>
+          <span className={styles.summaryLabel}>{t.useCases.summaryAit}</span>
           <span className={[styles.summaryTotal, styles.savings].join(" ")}>
-            $0<small>/month</small>
+            $0<small>{t.useCases.perMonth}</small>
           </span>
         </div>
       </div>
 
-      <p className={styles.footnote}>
-        Hardware and electricity not included. A Mac Mini M4 pays for itself in
-        under a year for a typical power user.
-      </p>
+      <p className={styles.footnote}>{t.useCases.footnote}</p>
     </Section>
   );
 }

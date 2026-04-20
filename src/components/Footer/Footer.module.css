@@ -30,15 +30,42 @@
 
 .right {
   text-align: right;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.langGroup {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--bg);
 }
 
 .langBtn {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-pill);
   padding: 4px 10px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   letter-spacing: 0.08em;
-  color: var(--ink-soft);
+  color: var(--ink-muted);
+  border-radius: var(--radius-pill);
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+  font-weight: 600;
+}
+
+.langBtn:hover {
+  color: var(--ink);
+}
+
+.langBtnActive {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.langBtnActive:hover {
+  color: var(--bg);
 }
 
 .copy {
@@ -57,5 +84,6 @@
   .left,
   .right {
     text-align: center;
+    justify-content: center;
   }
 }
