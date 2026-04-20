@@ -6,7 +6,10 @@
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--ink);
-  line-height: 1;
+  /* Extra line-height + padding keep descenders ('g' in Agentic, 'y' in
+     Technology) from getting clipped and leave a little breathing room above. */
+  line-height: 1.08;
+  padding: 0.06em 0.04em 0.12em;
   white-space: nowrap;
   max-width: 100%;
 }
@@ -36,12 +39,17 @@
 .slot {
   display: inline-flex;
   align-items: baseline;
-  overflow: hidden;
+  /* No overflow here. .rest has its own overflow-hidden for the width
+     animation; clipping the slot cuts off bold-glyph bearings (A's right
+     edge) and descenders. */
   will-change: transform;
 }
 
 .anchor {
   display: inline-block;
+  /* A tiny right pad keeps Inter's bold 'A' apex from being cut against a
+     sibling rest or layout boundary, even at subpixel rendering. */
+  padding-right: 0.02em;
 }
 
 .rest {
@@ -49,23 +57,20 @@
   overflow: hidden;
   white-space: nowrap;
   letter-spacing: -0.015em;
-  /* Subtle shift so the smaller word visually sits on the same baseline as
-     the huge anchor letter, compensating for differing cap heights. */
-  transform: translateY(-0.02em);
+  /* No margin-left: the rest must sit flush against its anchor, otherwise
+     "T·echnology" reads as two separate things instead of one word. */
 }
 
 /* Hero mode: expanded word is noticeably smaller than its anchor letter so
-   "Infrastructure" fits on a 360px viewport without clipping. */
+   long words (Infrastructure, Transformation) fit on a 360px viewport. */
 .xxl .rest {
   font-size: clamp(1.1rem, 5vw, 4rem);
-  margin-left: 0.04em;
 }
 
 /* Header mode: keep the expanded word close to anchor size for readability. */
 .md .rest,
 .sm .rest {
   font-size: 0.85em;
-  margin-left: 0.03em;
 }
 
 .char {

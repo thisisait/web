@@ -2,18 +2,17 @@ import type { SectionId } from "../../types/sections";
 
 export type Triplet = { A: string; I: string; T: string };
 
-// Every triplet below is curated so that
-//   (a) each individual word is a plausible expansion of A / I / T, and
-//   (b) the three words, read together, form a coherent phrase.
-// Keep this invariant when adding new triplets — the hero cycles through
-// them one letter at a time, but the header shows all three at once.
+// Invariants for this pool:
+//   1. No word is reused — 15 unique fillers across 5 triplets.
+//   2. Each word, standalone, is a plausible expansion of A / I / T.
+//   3. Each triplet, read together, forms a coherent phrase.
+// Adding a new triplet means picking three new words that don't appear elsewhere.
 export const HERO_POOL: Triplet[] = [
   { A: "Agentic", I: "Infrastructure", T: "Technology" },
   { A: "Autonomous", I: "Integrated", T: "Toolchain" },
-  { A: "Apple-native", I: "Infrastructure", T: "Tooling" },
-  { A: "All-in-one", I: "Independent", T: "Technology" },
   { A: "Automated", I: "Intelligent", T: "Transformation" },
-  { A: "Authentic", I: "Indie", T: "Tech" },
+  { A: "Apple-native", I: "Independent", T: "Tooling" },
+  { A: "Authentic", I: "Indie", T: "Takeover" },
 ];
 
 export const SECTION_WORDS: Record<SectionId, Triplet> = {
