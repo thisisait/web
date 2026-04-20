@@ -57,6 +57,17 @@ export interface Messages {
     kicker: string;
     title: string;
     subtitle: string;
+    categories: {
+      Infrastructure: string;
+      Observability: string;
+      Productivity: string;
+      DevOps: string;
+      "Media & Home": string;
+      "AI & Agentic": string;
+      Business: string;
+      Communication: string;
+      Engineering: string;
+    };
   };
 
   useCases: {
@@ -78,6 +89,10 @@ export interface Messages {
     para1: string;
     para2: string;
     terminalAriaLabel: string;
+    /** Four arrow lines in the terminal mock. Order: wipes, installs, integrates, secures. */
+    terminalLines: [string, string, string, string];
+    /** Footer line of the terminal mock, e.g. "Time: ~20 minutes. Once." */
+    terminalFooter: string;
     features: Array<{ n: string; label: string; note: string }>;
   };
 

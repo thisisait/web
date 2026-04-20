@@ -20,9 +20,9 @@ const cs: Messages = {
 
   hero: {
     tagline:
-      "Tohle je AIT. Nová kategorie self-hosted, agentní, open-source infrastruktury.",
-    subTagline: "Jeden stack. Čtyřicet služeb. Nula SaaS účtů.",
-    scrollHintAria: "Posunout na další sekci",
+      "Tohle je AIT. Nová kategorie infrastruktury — self-hosted, agentní, open-source.",
+    subTagline: "Jeden stack. Čtyřicet služeb. Žádné SaaS předplatné.",
+    scrollHintAria: "Přejít na další sekci",
   },
 
   problem: {
@@ -31,15 +31,15 @@ const cs: Messages = {
     cards: {
       saasTax: {
         headline: "SaaS daň",
-        body: "Notion. GitHub. 1Password. Vercel. Grafana Cloud. Auth0. Slack. Zoom. Dohromady: 200–500 $ každý měsíc. Navždy.",
+        body: "Notion. GitHub. 1Password. Vercel. Grafana Cloud. Auth0. Slack. Zoom. Dohromady: 200–500 $ měsíčně. Napořád.",
       },
       lockin: {
         headline: "Vendor lock-in",
-        body: "Tvá data žijí na cizím stroji. Export je vždy těžší než import. Cesta ven je součást produktu.",
+        body: "Tvoje data žijí na cizím serveru. Export je vždycky těžší než import — východ z produktu je totiž sám produkt.",
       },
       watched: {
         headline: "Pořád online, pořád sledovaný",
-        body: "Každý stisk klávesy opouští tvou budovu. Každou funkci ti mohou vzít. Každou cenu mohou zvýšit.",
+        body: "Každý stisk klávesy opouští tvou síť. Každou funkci ti můžou vzít. Každou cenu můžou zvednout.",
       },
     },
   },
@@ -48,67 +48,85 @@ const cs: Messages = {
     kicker: "Manifest",
     title: "Mainframe se vrátil domů.",
     paragraphs: [
-      "V šedesátkách sloužil jeden stroj všem. Pak PC decentralizovaly výpočet — moc přišla na tvůj stůl. Pak ji cloud zase centralizoval — moc se vrátila do cizího datacentra.",
-      "Dnes Apple Silicon dá na kolena rackové servery z před deseti let. Docker standardizoval nasazení. Ansible udělal infrastrukturu reprodukovatelnou. Lokální LLM umožnily mít zabudovaného DevOps agenta.",
-      "%STRONG_START%AIT — Agentic IT —%STRONG_END% je zhroucení celého toho oblouku. Jeden stroj na tvém stole, běží na něm celý tvůj digitální život. Self-hosted. Sebe-updatující. Sebe-řídící. Open source od začátku do konce.",
+      "V šedesátých letech sloužil jeden stroj všem. Pak PC rozprostřela výpočetní výkon — moc se stěhovala na tvůj stůl. Pak ji cloud znovu centralizoval — moc odešla do cizího datacentra.",
+      "Dnes Apple Silicon nechává rackové servery z minulé dekády daleko za sebou. Docker standardizoval nasazení. Ansible dal infrastruktuře reprodukovatelnost. Lokální LLM umožnily DevOps agenta přímo uvnitř stacku.",
+      "%STRONG_START%AIT — Agentic IT —%STRONG_END% je finální zhroucení toho oblouku. Jeden stroj na stole, běží na něm celý tvůj digitální život. Self-hosted. Sám se aktualizuje. Sám se spravuje. Open source od začátku do konce.",
     ],
     closing:
-      "Tohle není homelab koníček. Tohle je další kategorie infrastruktury.",
+      "Tohle není homelab koníček. Je to další kategorie infrastruktury.",
     timeline: [
       { era: "60. léta", label: "Mainframe", note: "jeden stroj, všichni" },
-      { era: "80. léta", label: "PC", note: "moc na stůl" },
-      { era: "00. léta", label: "Internet", note: "vzniká web" },
-      { era: "10. léta", label: "Cloud", note: "moc pro někoho jiného" },
+      { era: "80. léta", label: "PC", note: "moc přichází na stůl" },
+      { era: "00. léta", label: "Internet", note: "přichází web" },
+      { era: "10. léta", label: "Cloud", note: "moc patří někomu jinému" },
       { era: "20. léta", label: "Self-hosted", note: "zpátky na stůl" },
-      { era: "TEĎ", label: "AIT", note: "sebe-řídící, agentní" },
+      { era: "DNES", label: "AIT", note: "sám se spravuje, agentní" },
     ],
   },
 
   stack: {
     kicker: "Stack",
-    title: "Čtyřicet služeb. Jeden stack. Všechno open source.",
+    title: "Čtyřicet služeb. Jeden stack. Celý v open source.",
     subtitle:
-      "Každé logo níže je FOSS projekt, který integrujeme, orchestrujeme a zabezpečujeme dohromady — abys nemusel ty.",
+      "Každé logo níže je FOSS projekt, který za tebe zintegrujeme, zorchestrujeme a zabezpečíme.",
+    categories: {
+      Infrastructure: "Infrastruktura",
+      Observability: "Monitoring",
+      Productivity: "Produktivita",
+      DevOps: "DevOps",
+      "Media & Home": "Média & domov",
+      "AI & Agentic": "AI & agenti",
+      Business: "Byznys",
+      Communication: "Komunikace",
+      Engineering: "Inženýrství",
+    },
   },
 
   useCases: {
     kicker: "Co to nahradí",
-    title: "Nahraď svůj cloud, jeden tab po druhém.",
+    title: "Nahraď cloud, jeden tab po druhém.",
     colSaas: "Za co platíš",
-    colFoss: "Co si můžeš self-hostovat",
-    colPrice: "Měsíční účet",
+    colFoss: "Čím to nahradíš",
+    colPrice: "Účet za měsíc",
     summaryTypical: "Typický stack",
     summaryAit: "AIT",
     perMonth: "/měsíc",
     footnote:
-      "Hardware a elektřina nejsou započítány. Mac Mini M4 se typickému power userovi zaplatí za méně než rok.",
+      "Hardware a elektřinu nepočítáme. Mac Mini M4 se typickému power userovi vrátí do roka.",
   },
 
   engine: {
     kicker: "Pod kapotou",
     title: "Motor: nOS.",
-    subtitle: "Integrační vrstva je produkt.",
+    subtitle: "Integrační vrstva je samotný produkt.",
     para1:
-      "Každá FOSS služba funguje sama o sobě. Těžká část — a ta, která stojí inženýrské týmy miliony — je rozchodit je dohromady: jeden login, jedna audit stopa, jedna strategie záloh, jeden proces upgradů.",
+      "Každá FOSS služba sama o sobě funguje. Těžká část — ta, která inženýrské týmy stojí miliony — je dostat je dohromady: jeden login, jedna audit stopa, jedna záloha, jeden upgrade.",
     para2:
-      "nOS je open-source integrační motor za AIT. Je to Ansible playbook, který orchestruje 45 rolí, propojuje 40+ služeb přes Authentik SSO a dává celému stacku reprodukovatelnost, kterou si můžeš ověřit:",
-    terminalAriaLabel: "Ukázkový terminálový příkaz",
+      "nOS je open-source integrační motor za AIT. Ansible playbook, který orchestruje 45 rolí, provazuje přes 40 služeb přes Authentik SSO a dává celému stacku reprodukovatelnost, kterou si můžeš ověřit:",
+    terminalAriaLabel: "Ukázka příkazu v terminálu",
+    terminalLines: [
+      "Všechno smaže",
+      "Všechno nainstaluje",
+      "Všechno propojí",
+      "Všechno zabezpečí",
+    ],
+    terminalFooter: "Čas: ~20 minut. Jednou.",
     features: [
       { n: "45", label: "Ansible rolí", note: "každá služba má svou roli" },
       { n: "SSO", label: "všude", note: "OIDC + forward-auth, bez výjimek" },
       { n: "4", label: "úrovně RBAC", note: "admin / manager / user / guest" },
-      { n: "ARM64", label: "Apple Silicon", note: "inference akcelerovaná MLX" },
+      { n: "ARM64", label: "Apple Silicon", note: "MLX akcelerovaná inference" },
     ],
   },
 
   values: {
     kicker: "Principy",
-    title: "Nevyjednatelné.",
+    title: "Bez kompromisů.",
     items: [
-      { title: "100% FOSS.", body: "Žádné proprietární závislosti. Forknutelné od prvního dne." },
-      { title: "Self-hosted defaultně.", body: "Tvá data nikdy neopustí tvůj stroj." },
-      { title: "Reprodukovatelné.", body: "Jeden příkaz, vždy. Žádné sněhové vločky." },
-      { title: "Agentní.", body: "Stack se udržuje sám, ať to nemusíš dělat ty." },
+      { title: "100 % FOSS.", body: "Žádné proprietární závislosti. Forknutelné od prvního dne." },
+      { title: "Self-hosted defaultně.", body: "Tvoje data nikdy neopustí tvůj stroj." },
+      { title: "Reprodukovatelné.", body: "Jeden příkaz, pokaždé stejně. Žádné snowflakes." },
+      { title: "Agentní.", body: "Stack se udržuje sám, aby ses o něj nemusel starat ty." },
     ],
   },
 
@@ -116,30 +134,30 @@ const cs: Messages = {
     kicker: "Zapojit se",
     title: "Buď u toho.",
     subtitle:
-      "Jsme na začátku. Repo je veřejné. Kategorie ještě není napsaná.",
+      "Teprve začínáme. Repo je veřejné. Tahle kategorie se teprve píše.",
     star: {
-      title: "Hvězda pro repo",
-      body: "Pomoz nám dorazit na prvních 1 000 hvězd. Open-source se takhle dostává k lidem.",
+      title: "Dej hvězdu repu",
+      body: "Pomoz nám na prvních 1 000 hvězd. Takhle se open source dostává k lidem.",
       button: "Hvězda na GitHubu",
       starsAria: (n) => `Aktuální počet hvězd: ${n}`,
     },
     coffee: {
       title: "Kup mi kafe",
-      body: "Tohle se staví po nocích a o víkendech. Kafe drží playbook naživu.",
+      body: "Tohle vzniká po nocích a o víkendech. Kafe drží playbook naživu.",
       button: "Kup mi kafe",
     },
     secondaryMuted: "Docs · Twitter · Matrix · RSS — brzy.",
-    secondaryAria: "Sekundární odkazy",
+    secondaryAria: "Vedlejší odkazy",
     readDocs: "Dokumentace",
-    followTwitter: "Sleduj na Twitter/X",
-    joinMatrix: "Připoj se na Matrix",
+    followTwitter: "Twitter/X",
+    joinMatrix: "Matrix",
     rss: "RSS",
   },
 
   footer: {
     tagline: "This is AIT. — Agentic IT, manifestové vydání.",
     license: "MIT licence. Postaveno na M4 Pro.",
-    copy: (year) => `© ${year} thisisait.eu — stavěno lidmi, udržováno agenty.`,
+    copy: (year) => `© ${year} thisisait.eu — staví lidé, udržují agenti.`,
   },
 };
 

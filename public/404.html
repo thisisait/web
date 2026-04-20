@@ -3,11 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <title>Redirecting — This is AIT</title>
-    <meta http-equiv="refresh" content="0; url=/" />
     <script>
-      // SPA fallback: deep-link routes redirect to the single-page app root.
-      window.location.replace("/");
+      // SPA fallback for paths that don't have a real index.html.
+      // Preserve the locale prefix so /cs/unknown → /cs/, /de/... → /de/.
+      (function () {
+        var path = window.location.pathname;
+        var match = path.match(/^\/(cs|de|fr)(?:\/|$)/);
+        var hash = window.location.hash || "";
+        var target = match ? "/" + match[1] + "/" + hash : "/" + hash;
+        window.location.replace(target);
+      })();
     </script>
+    <meta http-equiv="refresh" content="0; url=/" />
   </head>
   <body>
     <p>Redirecting to <a href="/">thisisait.eu</a>…</p>

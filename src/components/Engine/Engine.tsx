@@ -31,15 +31,15 @@ export function Engine() {
                 ansible-playbook main.yml -K -e blank=true
               </span>
               {"\n\n"}
-              <span className={styles.arrow}>→</span> Wipes everything
+              <span className={styles.arrow}>→</span> {t.engine.terminalLines[0]}
               {"\n"}
-              <span className={styles.arrow}>→</span> Installs everything
+              <span className={styles.arrow}>→</span> {t.engine.terminalLines[1]}
               {"\n"}
-              <span className={styles.arrow}>→</span> Integrates everything
+              <span className={styles.arrow}>→</span> {t.engine.terminalLines[2]}
               {"\n"}
-              <span className={styles.arrow}>→</span> Secures everything
+              <span className={styles.arrow}>→</span> {t.engine.terminalLines[3]}
               {"\n\n"}
-              <span className={styles.dim}>Time: ~20 minutes. Once.</span>
+              <span className={styles.dim}>{t.engine.terminalFooter}</span>
             </code>
           </pre>
         </div>

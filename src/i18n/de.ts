@@ -69,6 +69,17 @@ const de: Messages = {
     title: "Vierzig Dienste. Ein Stack. Alles Open Source.",
     subtitle:
       "Jedes Logo unten ist ein FOSS-Projekt, das wir integrieren, orchestrieren und absichern — damit du es nicht musst.",
+    categories: {
+      Infrastructure: "Infrastruktur",
+      Observability: "Monitoring",
+      Productivity: "Produktivität",
+      DevOps: "DevOps",
+      "Media & Home": "Medien & Zuhause",
+      "AI & Agentic": "KI & agentisch",
+      Business: "Geschäft",
+      Communication: "Kommunikation",
+      Engineering: "Engineering",
+    },
   },
 
   useCases: {
@@ -93,6 +104,13 @@ const de: Messages = {
     para2:
       "nOS ist die Open-Source-Integrationsmaschine hinter AIT. Es ist ein Ansible-Playbook, das 45 Rollen orchestriert, 40+ Dienste über Authentik-SSO verbindet und dem ganzen Stack eine nachprüfbare Reproduzierbarkeit gibt:",
     terminalAriaLabel: "Beispiel-Terminalbefehl",
+    terminalLines: [
+      "Löscht alles",
+      "Installiert alles",
+      "Integriert alles",
+      "Sichert alles",
+    ],
+    terminalFooter: "Dauer: ~20 Minuten. Einmalig.",
     features: [
       { n: "45", label: "Ansible-Rollen", note: "jeder Dienst hat seine Rolle" },
       { n: "SSO", label: "überall", note: "OIDC + Forward-Auth, ohne Ausnahme" },

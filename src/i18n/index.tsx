@@ -18,14 +18,23 @@ export type { LocaleCode, Messages } from "./types";
 
 const DICTIONARIES: Record<LocaleCode, Messages> = { en, cs, de, fr };
 
-const STORAGE_KEY = "ait.locale";
+/** Locales that receive a URL prefix. "en" lives at the root. */
+const PREFIXED = LOCALES.filter((l): l is Exclude<LocaleCode, "en"> => l !== "en");
+
+const LOCALE_PATH_RE = new RegExp(`^/(${PREFIXED.join("|")})(?:/|$)`);
+
+function detectFromPath(pathname: string): LocaleCode {
+  const match = pathname.match(LOCALE_PATH_RE);
+  return (match?.[1] as LocaleCode) ?? "en";
+}
+
+function pathnameFor(locale: LocaleCode): string {
+  return locale === "en" ? "/" : `/${locale}/`;
+}
 
 function detectInitial(): LocaleCode {
   if (typeof window === "undefined") return "en";
-  const stored = window.localStorage.getItem(STORAGE_KEY) as LocaleCode | null;
-  if (stored && LOCALES.includes(stored)) return stored;
-  const nav = window.navigator.language.slice(0, 2).toLowerCase() as LocaleCode;
-  return LOCALES.includes(nav) ? nav : "en";
+  return detectFromPath(window.location.pathname);
 }
 
 interface I18nContextValue {
@@ -41,10 +50,22 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.lang = locale;
-    window.localStorage.setItem(STORAGE_KEY, locale);
   }, [locale]);
 
+  // Back/forward navigation: keep React state in sync with the URL.
+  useEffect(() => {
+    const handler = () => {
+      setLocaleState(detectFromPath(window.location.pathname));
+    };
+    window.addEventListener("popstate", handler);
+    return () => window.removeEventListener("popstate", handler);
+  }, []);
+
   const setLocale = useCallback((code: LocaleCode) => {
+    const newPath = pathnameFor(code);
+    const url = newPath + window.location.search + window.location.hash;
+    // pushState so the back button goes to the previous locale.
+    window.history.pushState(null, "", url);
     setLocaleState(code);
   }, []);
 

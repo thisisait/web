@@ -41,7 +41,9 @@ export function Stack() {
             viewport={{ once: true, margin: "-5% 0px" }}
             transition={{ duration: 0.5, delay: gIdx * 0.05 }}
           >
-            <h3 className={styles.groupLabel}>{group.category}</h3>
+            <h3 className={styles.groupLabel}>
+              {t.stack.categories[group.category]}
+            </h3>
             <div className={styles.grid}>
               {group.items.map((logo, idx) => (
                 <motion.div
