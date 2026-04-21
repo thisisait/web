@@ -50,8 +50,8 @@ jobs:
   indexnow:
     needs: deploy
     runs-on: ubuntu-latest
-    # Only ping IndexNow for production deploys on main.
-    if: github.ref == 'refs/heads/main' && github.event_name != 'workflow_dispatch'
+    # Any deploy to main, including manual re-runs, re-pings IndexNow.
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Notify IndexNow (Bing, Seznam, Yandex, Naver)
         env:
