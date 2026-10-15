@@ -1,4 +1,5 @@
 import type { Messages } from "./types";
+import { anatomyEn } from "./anatomy/en";
 
 const en: Messages = {
   localeName: "English",
@@ -16,6 +17,7 @@ const en: Messages = {
       stack: "Stack",
       useCases: "What it replaces",
       engine: "nOS",
+      anatomy: "Anatomy",
       getInvolved: "Get involved",
     },
     themeSwitchToLight: "Switch to light mode",
@@ -124,6 +126,8 @@ const en: Messages = {
       { n: "ARM64", label: "Apple Silicon", note: "MLX-accelerated inference" },
     ],
   },
+
+  anatomy: anatomyEn,
 
   values: {
     kicker: "Principles",

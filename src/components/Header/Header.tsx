@@ -34,6 +34,7 @@ export function Header() {
           <a href="#stack">{t.header.nav.stack}</a>
           <a href="#use-cases">{t.header.nav.useCases}</a>
           <a href="#engine">{t.header.nav.engine}</a>
+          <a href="#anatomy">{t.header.nav.anatomy}</a>
           <a href="#cta">{t.header.nav.getInvolved}</a>
         </nav>
 

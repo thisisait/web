@@ -22,6 +22,7 @@ export const SECTION_WORDS: Record<SectionId, Triplet> = {
   stack: { A: "All-in-one", I: "Integrated", T: "Turnkey" },
   "use-cases": { A: "Affordable", I: "Immune", T: "Thrifty" },
   engine: { A: "Automated", I: "Infrastructure", T: "Transparent" },
+  anatomy: { A: "Anatomical", I: "Interior", T: "Tissue" },
   values: { A: "Authentic", I: "Indie", T: "Trusted" },
   cta: { A: "Actionable", I: "Immediate", T: "Today" },
   footer: { A: "Agentic", I: "Infrastructure", T: "Technology" },

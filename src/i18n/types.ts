@@ -1,5 +1,9 @@
 export type LocaleCode = "en" | "cs" | "de" | "fr";
 
+export type AnatomyLayer =
+  | "bell" | "systems" | "host" | "canals" | "nerves" | "wiring"
+  | "limbs" | "symbionts" | "cells" | "genome" | "habitat" | "vision";
+
 export const LOCALES: LocaleCode[] = ["en", "cs", "de", "fr"];
 
 export const LOCALE_LABELS: Record<LocaleCode, string> = {
@@ -26,6 +30,7 @@ export interface Messages {
       stack: string;
       useCases: string;
       engine: string;
+      anatomy: string;
       getInvolved: string;
     };
     themeSwitchToLight: string;
@@ -101,6 +106,34 @@ export interface Messages {
     /** Footer line of the terminal mock, e.g. "Time: ~20 minutes. Once." */
     terminalFooter: string;
     features: Array<{ n: string; label: string; note: string }>;
+  };
+
+  anatomy: {
+    kicker: string;
+    title: string;
+    subtitle: string;
+    figure: string;
+    caption: string;
+    scale: string;
+    breathIn: string;
+    breathOut: string;
+    paused: string;
+    converge: string;
+    pause: string;
+    play: string;
+    spin: string;
+    cut: string;
+    loading: string;
+    entry: string;
+    entryOf: (n: number, total: number) => string;
+    layersTitle: string;
+    layersHint: string;
+    leash: string;
+    sources: { lexicon: string; apex: string; doctrine: string; vision: string };
+    fields: { not: string; counter: string; mechanism: string };
+    layers: Record<AnatomyLayer, string>;
+    /** one entry per part id in src/anatomy/parts.ts: a name and a one-sentence gloss */
+    parts: Record<string, { name: string; gloss: string }>;
   };
 
   values: {

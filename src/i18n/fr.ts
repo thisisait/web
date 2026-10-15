@@ -1,4 +1,5 @@
 import type { Messages } from "./types";
+import { anatomyFr } from "./anatomy/fr";
 
 const fr: Messages = {
   localeName: "Français",
@@ -16,6 +17,7 @@ const fr: Messages = {
       stack: "Stack",
       useCases: "Ce qu'il remplace",
       engine: "nOS",
+      anatomy: "Anatomie",
       getInvolved: "Participer",
     },
     themeSwitchToLight: "Passer en mode clair",
@@ -124,6 +126,8 @@ const fr: Messages = {
       { n: "ARM64", label: "Apple Silicon", note: "inférence accélérée par MLX" },
     ],
   },
+
+  anatomy: anatomyFr,
 
   values: {
     kicker: "Principes",

@@ -5,6 +5,7 @@ export const SECTIONS = [
   "stack",
   "use-cases",
   "engine",
+  "anatomy",
   "values",
   "cta",
   "footer",

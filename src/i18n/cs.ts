@@ -1,4 +1,5 @@
 import type { Messages } from "./types";
+import { anatomyCs } from "./anatomy/cs";
 
 const cs: Messages = {
   localeName: "Čeština",
@@ -16,6 +17,7 @@ const cs: Messages = {
       stack: "Stack",
       useCases: "Co to nahradí",
       engine: "nOS",
+      anatomy: "Anatomie",
       getInvolved: "Zapojit se",
     },
     themeSwitchToLight: "Přepnout na světlý režim",
@@ -124,6 +126,8 @@ const cs: Messages = {
       { n: "ARM64", label: "Apple Silicon", note: "MLX akcelerovaná inference" },
     ],
   },
+
+  anatomy: anatomyCs,
 
   values: {
     kicker: "Principy",
