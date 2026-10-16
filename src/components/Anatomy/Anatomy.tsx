@@ -8,7 +8,7 @@ import styles from "./Anatomy.module.css";
 
 const ORDER = PARTS.map((p) => p.id);
 
-export function Anatomy() {
+export function Anatomy({ page = false }: { page?: boolean }) {
   const { t } = useI18n();
   const reduced = useReducedMotion();
   const figRef = useRef<HTMLDivElement>(null);
@@ -83,9 +83,9 @@ export function Anatomy() {
   const part = partById(selected), copy = a.parts[selected];
   const sourceLabel = useMemo(() => a.sources[part.source], [a, part.source]);
 
-  return (
-    <Section id="anatomy" kicker={a.kicker} title={a.title} subtitle={a.subtitle}>
-      <div className={styles.plate}>
+  const body = (
+    <>
+      <div className={[styles.plate, page ? styles.pagePlate : ""].join(" ")}>
         <figure className={styles.figure}>
           <div className={styles.bar}>
             <span>{a.figure}</span>
@@ -166,6 +166,10 @@ export function Anatomy() {
         </div>
         <p className={styles.leash}>{a.leash}</p>
       </div>
-    </Section>
+    </>
+  );
+  if (page) return <section id="anatomy" className={[styles.pageWrap, "container"].join(" ")} aria-label={a.title}>{body}</section>;
+  return (
+    <Section id="anatomy" kicker={a.kicker} title={a.title} subtitle={a.subtitle}>{body}</Section>
   );
 }

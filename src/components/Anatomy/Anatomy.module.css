@@ -362,3 +362,26 @@
     background: none;
   }
 }
+
+/* page variant (/nos/): the plate owns the width, the stage is taller */
+.pageWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 24px;
+  padding-bottom: clamp(48px, 6vw, 80px);
+}
+.pagePlate {
+  grid-template-columns: minmax(0, 1fr) 380px;
+}
+.pagePlate .stage {
+  aspect-ratio: 16 / 10.5;
+}
+@media (max-width: 960px) {
+  .pagePlate {
+    grid-template-columns: 1fr;
+  }
+  .pagePlate .stage {
+    aspect-ratio: 4 / 5;
+  }
+}

@@ -81,4 +81,18 @@ export const anatomyEn: Messages["anatomy"] = {
     engram: { name: "Engram", gloss: "A pink spark in the Hippocampus: one memory of an agent." },
     twin: { name: "Twin", gloss: "The second organism in the distance. Two lists that must stay equal." },
   },
+  page: {
+    seoTitle: "nOS · anatomy of a synthetic organism — This is AIT",
+    seoDescription: "An interactive 3D atlas of nOS: the organs, canals, nerves, limbs and symbionts of a self-hosted agentic organism, each with its entry from the genome.",
+    back: "← This is AIT",
+    kicker: "Atlas of synthetic anatomy",
+    title: "nOS",
+    lede: "A self-hosted agentic organism. Forty services, one body: organs with one job each, canals between them, senses that only read, and hands that act only through the approval gate. Plate I shows the specimen in cross-section.",
+    plateLabel: "Plate I",
+    tryKicker: "Try it",
+    tryTitle: "One playbook. One organism.",
+    tryBody: "nOS builds on a Mac with Apple Silicon or on Ubuntu 24.04 in a single playbook run. All data stays at home, and whatever goes wrong is caught by a gate before it costs anything.",
+    tryButton: "nOS on GitHub",
+    readDocs: "Documentation",
+  },
 };

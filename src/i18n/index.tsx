@@ -28,8 +28,15 @@ function detectFromPath(pathname: string): LocaleCode {
   return (match?.[1] as LocaleCode) ?? "en";
 }
 
-function pathnameFor(locale: LocaleCode): string {
-  return locale === "en" ? "/" : `/${locale}/`;
+/** Same page, other locale: "/cs/nos/" -> "/nos/" -> "/de/nos/". */
+function pathnameFor(locale: LocaleCode, current = "/"): string {
+  const rest = current.replace(LOCALE_PATH_RE, "/");
+  return locale === "en" ? rest : `/${locale}${rest}`;
+}
+
+/** Path of a page in the current locale, for links between pages. */
+export function localePath(locale: LocaleCode, page = "/"): string {
+  return locale === "en" ? page : `/${locale}${page}`;
 }
 
 function detectInitial(): LocaleCode {
@@ -79,7 +86,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setLocale = useCallback((code: LocaleCode) => {
-    const newPath = pathnameFor(code);
+    const newPath = pathnameFor(code, window.location.pathname);
     const url = newPath + window.location.search + window.location.hash;
     // pushState so the back button goes to the previous locale.
     window.history.pushState(null, "", url);

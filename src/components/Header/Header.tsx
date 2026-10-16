@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { FiGithub, FiMoon, FiSun } from "react-icons/fi";
 import { useActiveSection } from "../../hooks/useActiveSection";
 import { useTheme } from "../../hooks/useTheme";
-import { useI18n } from "../../i18n";
+import { useI18n, localePath } from "../../i18n";
 import { LINKS } from "../../config/links";
 import { WordMorph } from "../WordMorph/WordMorph";
 import { SECTION_WORDS } from "../WordMorph/wordPools";
@@ -13,7 +13,7 @@ export function Header() {
   const active = useActiveSection();
   const scrolled = useScrolled(0.6);
   const { theme, toggle } = useTheme();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const words = SECTION_WORDS[active];
 
   return (
@@ -34,7 +34,7 @@ export function Header() {
           <a href="#stack">{t.header.nav.stack}</a>
           <a href="#use-cases">{t.header.nav.useCases}</a>
           <a href="#engine">{t.header.nav.engine}</a>
-          <a href="#anatomy">{t.header.nav.anatomy}</a>
+          <a href={localePath(locale, "/nos/")}>{t.header.nav.anatomy}</a>
           <a href="#cta">{t.header.nav.getInvolved}</a>
         </nav>
 

@@ -81,4 +81,18 @@ export const anatomyDe: Messages["anatomy"] = {
     engram: { name: "Engramm", gloss: "Ein rosa Funke im Hippocampus: eine Erinnerung eines Agenten." },
     twin: { name: "Zwilling · twin", gloss: "Der zweite Organismus in der Ferne. Zwei Listen, die gleich bleiben müssen." },
   },
+  page: {
+    seoTitle: "nOS · Anatomie eines synthetischen Organismus — This is AIT",
+    seoDescription: "Ein interaktiver 3D-Atlas von nOS: Organe, Kanäle, Nerven, Gliedmaßen und Symbionten eines selbstgehosteten agentischen Organismus, jeweils mit seinem Eintrag aus dem Genom.",
+    back: "← This is AIT",
+    kicker: "Atlas der synthetischen Anatomie",
+    title: "nOS",
+    lede: "Ein selbstgehosteter agentischer Organismus. Vierzig Dienste, ein Körper: Organe mit je einer Aufgabe, Kanäle dazwischen, Sinne, die nur lesen, und Hände, die nur über das Freigabetor handeln. Tafel I zeigt das Präparat im Schnitt.",
+    plateLabel: "Tafel I",
+    tryKicker: "Ausprobieren",
+    tryTitle: "Ein Playbook. Ein Organismus.",
+    tryBody: "nOS entsteht auf einem Mac mit Apple Silicon oder auf Ubuntu 24.04 in einem einzigen Playbook-Lauf. Alle Daten bleiben zu Hause, und was schiefgeht, fängt ein Tor ab, bevor es etwas kostet.",
+    tryButton: "nOS auf GitHub",
+    readDocs: "Dokumentation",
+  },
 };

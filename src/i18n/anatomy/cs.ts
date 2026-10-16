@@ -81,4 +81,18 @@ export const anatomyCs: Messages["anatomy"] = {
     engram: { name: "Engram", gloss: "Růžová jiskra v Hippocampu: jedna vzpomínka agenta." },
     twin: { name: "Dvojče · twin", gloss: "Druhý organismus v dálce. Dva seznamy, které si musí být rovny." },
   },
+  page: {
+    seoTitle: "nOS · anatomie syntetického organismu — This is AIT",
+    seoDescription: "Interaktivní 3D atlas nOS: orgány, kanály, nervy, končetiny a symbionti self-hosted agentního organismu, každý s heslem z genomu.",
+    back: "← This is AIT",
+    kicker: "Atlas syntetické anatomie",
+    title: "nOS",
+    lede: "Self-hosted agentní organismus. Čtyřicet služeb, jedno tělo: orgány s jedním úkolem, kanály mezi nimi, smysly, které jen čtou, a ruce, které jednají jen přes schvalovací bránu. Tabule I ukazuje preparát v řezu.",
+    plateLabel: "Tabule I",
+    tryKicker: "Vyzkoušej",
+    tryTitle: "Jeden playbook. Jeden organismus.",
+    tryBody: "nOS postavíš na Macu s Apple Silicon nebo na Ubuntu 24.04 jedním během playbooku. Všechna data zůstávají doma a cokoli, co se pokazí, chytí brána dřív, než to něco stojí.",
+    tryButton: "nOS na GitHubu",
+    readDocs: "Dokumentace",
+  },
 };

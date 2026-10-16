@@ -13,6 +13,7 @@ interface LocaleSeo {
 }
 
 const SITE = "https://thisisait.eu";
+const PAGES = ["", "nos"];
 
 const LOCALE_SEO: LocaleSeo[] = [
   {
@@ -99,17 +100,21 @@ function localeHtmlPlugin(): Plugin {
     apply: "build",
     closeBundle() {
       const dist = path.resolve("dist");
-      const source = path.join(dist, "index.html");
-      if (!fs.existsSync(source)) return;
-      const raw = fs.readFileSync(source, "utf8");
-      for (const seo of LOCALE_SEO) {
-        const out = applyLocaleSeo(raw, seo);
-        if (seo.code === "en") {
-          fs.writeFileSync(source, out);
-        } else {
-          const dir = path.join(dist, seo.code);
-          fs.mkdirSync(dir, { recursive: true });
-          fs.writeFileSync(path.join(dir, "index.html"), out);
+      // every page: "" is the landing, "nos" the atlas; each gets /cs, /de, /fr copies
+      for (const page of PAGES) {
+        const source = path.join(dist, page, "index.html");
+        if (!fs.existsSync(source)) continue;
+        const raw = fs.readFileSync(source, "utf8");
+        for (const seo of LOCALE_SEO) {
+          const canonical = seo.canonical + (page ? `${page}/` : "");
+          const out = applyLocaleSeo(raw, { ...seo, canonical });
+          if (seo.code === "en") {
+            fs.writeFileSync(source, out);
+          } else {
+            const dir = path.join(dist, seo.code, page);
+            fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(path.join(dir, "index.html"), out);
+          }
         }
       }
     },
@@ -122,5 +127,12 @@ export default defineConfig({
   build: {
     target: "es2020",
     sourcemap: false,
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      input: {
+        main: path.resolve("index.html"),
+        nos: path.resolve("nos/index.html"),
+      },
+    },
   },
 });

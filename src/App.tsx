@@ -7,7 +7,6 @@ import { Manifesto } from "./components/Manifesto/Manifesto";
 import { Stack } from "./components/Stack/Stack";
 import { UseCases } from "./components/UseCases/UseCases";
 import { Engine } from "./components/Engine/Engine";
-import { Anatomy } from "./components/Anatomy/Anatomy";
 import { Values } from "./components/Values/Values";
 import { CTA } from "./components/CTA/CTA";
 import { Footer } from "./components/Footer/Footer";
@@ -24,7 +23,6 @@ export default function App() {
           <Stack />
           <UseCases />
           <Engine />
-          <Anatomy />
           <Values />
           <CTA />
         </main>

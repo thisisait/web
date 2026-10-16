@@ -134,6 +134,21 @@ export interface Messages {
     layers: Record<AnatomyLayer, string>;
     /** one entry per part id in src/anatomy/parts.ts: a name and a one-sentence gloss */
     parts: Record<string, { name: string; gloss: string }>;
+    /** the /nos/ atlas page around the plate */
+    page: {
+      seoTitle: string;
+      seoDescription: string;
+      back: string;
+      kicker: string;
+      title: string;
+      lede: string;
+      plateLabel: string;
+      tryKicker: string;
+      tryTitle: string;
+      tryBody: string;
+      tryButton: string;
+      readDocs: string;
+    };
   };
 
   values: {

@@ -9,6 +9,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { fbm, rng } from "./noise";
+import { causticTexture, normalTexture } from "./textures";
 import { PARTS, type LayerId, partById } from "./parts";
 
 export interface Projected { id: string; x: number; y: number; visible: boolean }
@@ -52,6 +53,12 @@ export class Organism {
   private anim: Array<(t: number, dt: number, breath: number) => void> = [];
   private highlightColor = new THREE.Color(0x6a8cd3);
   private disposed = false;
+  // shared shader state: one clock, one caustic sheet, two normal maps, the sun's direction
+  private uTime = { value: 0 };
+  private causticTex!: THREE.Texture;
+  private skinN!: THREE.Texture;
+  private bellN!: THREE.Texture;
+  private sunDir = new THREE.Vector3(-3, 12, 6).normalize();
 
   constructor(private el: HTMLElement, private opts: OrganismOptions = {}) {
     const canvas = document.createElement("canvas");
@@ -66,10 +73,10 @@ export class Organism {
     this.scene.fog = new THREE.FogExp2(0x07182b, 0.028);
 
     this.camera = new THREE.PerspectiveCamera(30, 1, 0.1, 120);
-    this.camera.position.set(2.5, 1.6, 15.5);
+    this.camera.position.set(2.2, 1.2, 13.2);
     this.controls = new OrbitControls(this.camera, canvas);
     this.controls.enableDamping = true;
-    this.controls.target.set(0, -0.4, 0);
+    this.controls.target.set(0, -0.55, 0);
     this.controls.minDistance = 8;
     this.controls.maxDistance = 26;
     this.controls.enablePan = false;
@@ -79,6 +86,9 @@ export class Organism {
 
     for (const l of ["bell", "systems", "host", "canals", "nerves", "wiring", "limbs", "symbionts", "cells", "genome", "habitat", "vision"] as LayerId[]) this.layers.set(l, true);
 
+    this.causticTex = causticTexture(512, 9, 2);
+    this.skinN = normalTexture(512, 7, 2.4, 1, true);
+    this.bellN = normalTexture(512, 4, 1.4, 5);
     this.lights();
     this.water();
     this.scene.add(this.body);
@@ -174,9 +184,39 @@ export class Organism {
   }
 
   // ── materials & geometry helpers ───────────────────────────────────────
-  private flesh(color: number, o: Partial<THREE.MeshPhysicalMaterialParameters> = {}): Flesh {
-    return new THREE.MeshPhysicalMaterial({ color, roughness: .4, metalness: 0, clearcoat: .8, clearcoatRoughness: .3, sheen: .9, sheenRoughness: .5,
-      sheenColor: new THREE.Color(color).lerp(new THREE.Color(0xffffff), .4), ...o });
+  private flesh(color: number, o: Partial<THREE.MeshPhysicalMaterialParameters> = {}, fx: { sss?: number; caustic?: number; sssColor?: number } = {}): Flesh {
+    const m = new THREE.MeshPhysicalMaterial({ color, roughness: .42, metalness: 0, clearcoat: .8, clearcoatRoughness: .28, sheen: .9, sheenRoughness: .5,
+      sheenColor: new THREE.Color(color).lerp(new THREE.Color(0xffffff), .4), normalMap: this.skinN, normalScale: new THREE.Vector2(.45, .45), ...o });
+    return this.enhance(m, { sss: .75, caustic: .9, ...fx });
+  }
+  /** subsurface scattering (wrapped back-light through the surface) + caustics projected from the sun above.
+      Chains with an existing onBeforeCompile (the sway) and shares one program across every material. */
+  private enhance<M extends THREE.Material>(mat: M, o: { sss?: number; caustic?: number; sssColor?: number }): M {
+    const prev = mat.onBeforeCompile, prevKey = mat.customProgramCacheKey.bind(mat);
+    mat.onBeforeCompile = (sh, r) => {
+      prev?.call(mat, sh, r);
+      Object.assign(sh.uniforms, { uTime: this.uTime, uCaustic: { value: this.causticTex }, uCau: { value: o.caustic ?? 0 }, uSSS: { value: o.sss ?? 0 },
+        uSSSColor: { value: new THREE.Color(o.sssColor ?? 0xffa386) }, uSun: { value: this.sunDir } });
+      sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vWPos;")
+        .replace("#include <worldpos_vertex>", "#include <worldpos_vertex>\nvWPos = (modelMatrix * vec4(transformed, 1.)).xyz;");
+      sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nuniform float uTime, uCau, uSSS; uniform sampler2D uCaustic; uniform vec3 uSSSColor, uSun; varying vec3 vWPos;")
+        .replace("#include <lights_fragment_end>", `#include <lights_fragment_end>
+  vec3 wN = inverseTransformDirection(normal, viewMatrix);
+  vec3 wV = normalize(cameraPosition - vWPos);
+  // caustics: the sun's light web refracted by the surface, projected straight down and scrolled two ways
+  vec2 cuv = vWPos.xz * 0.3;
+  float c1 = texture2D(uCaustic, cuv + vec2(uTime * 0.026, uTime * 0.017)).r;
+  float c2 = texture2D(uCaustic, cuv * 1.37 - vec2(uTime * 0.021, -uTime * 0.029)).r;
+  float cau = min(c1, c2) * 2.4 + 0.35 * c1 * c2;
+  reflectedLight.directDiffuse += diffuseColor.rgb * cau * uCau * clamp(wN.y * 0.8 + 0.2, 0.0, 1.0);
+  // subsurface: light from behind leaks through, wrapped around the normal; thin edges glow warmest
+  vec3 sH = normalize(-uSun + wN * 0.4);
+  float thin = 1.0 - clamp(dot(wN, wV), 0.0, 1.0);
+  float sss = pow(clamp(dot(wV, -sH), 0.0, 1.0), 2.4) * 1.3 + 0.22 * (0.4 + 0.6 * thin) * clamp(dot(wN, -uSun) * 0.5 + 0.5, 0.0, 1.0);
+  reflectedLight.indirectDiffuse += uSSSColor * diffuseColor.rgb * sss * uSSS;`);
+    };
+    mat.customProgramCacheKey = () => prevKey() + "|enh";
+    return mat;
   }
   private reg(id: string, meshes: THREE.Object3D[], anchor?: THREE.Vector3, world = false) {
     const rec = this.parts.get(id) ?? { meshes: [], anchor: anchor ?? V(0, 0, 0), layer: partById(id).layer };
@@ -187,11 +227,12 @@ export class Organism {
   }
   /** displaced icosphere: pushed along the normal by fbm; ridged = gyri */
   private blob(rad: THREE.Vector3, { detail = 20, amp = .12, freq = 2.2, seed = 0, ridged = false }: { detail?: number; amp?: number; freq?: number; seed?: number; ridged?: boolean } = {}) {
-    const g = new THREE.IcosahedronGeometry(1, detail), pos = g.attributes.position as THREE.BufferAttribute, v = new THREE.Vector3();
+    const g = new THREE.IcosahedronGeometry(1, detail), pos = g.attributes.position as THREE.BufferAttribute, uv = g.attributes.uv as THREE.BufferAttribute, v = new THREE.Vector3();
     for (let i = 0; i < pos.count; i++) {
       v.fromBufferAttribute(pos, i).normalize();
       let n = fbm(v.x * freq + seed, v.y * freq + seed * 1.7, v.z * freq - seed);
       if (ridged) n = Math.pow(1 - Math.abs(n * 2 - 1), 2.2);
+      uv.setXY(i, Math.atan2(v.z, v.x) / (Math.PI * 2) + .5, Math.asin(Math.max(-1, Math.min(1, v.y))) / Math.PI + .5);
       v.multiplyScalar(1 + amp * (n - .5)); pos.setXYZ(i, v.x * rad.x, v.y * rad.y, v.z * rad.z);
     }
     g.computeVertexNormals(); return g;
@@ -214,10 +255,11 @@ export class Organism {
   /** vertex sway for trailing parts: displacement grows with uv.x (distance from the root) */
   private swaying(mat: THREE.Material, seed: number, amp = .35) {
     const u = { value: 0 }; this.swayUniforms.push(u);
+    mat.customProgramCacheKey = () => "sway";
     mat.onBeforeCompile = (sh) => {
-      sh.uniforms.uTime = u; sh.uniforms.uSeed = { value: seed }; sh.uniforms.uAmp = { value: amp };
-      sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nuniform float uTime,uSeed,uAmp;")
-        .replace("#include <begin_vertex>", "#include <begin_vertex>\nfloat k=uv.x*uv.x;transformed.x+=sin(uTime*.7+uv.x*3.5+uSeed)*uAmp*k;transformed.z+=cos(uTime*.55+uv.x*2.8+uSeed*1.3)*uAmp*.8*k;transformed.y+=sin(uTime*.4+uSeed)*.08*k;");
+      sh.uniforms.uSway = u; sh.uniforms.uSeed = { value: seed }; sh.uniforms.uAmp = { value: amp };
+      sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nuniform float uSway,uSeed,uAmp;")
+        .replace("#include <begin_vertex>", "#include <begin_vertex>\nfloat k=uv.x*uv.x;transformed.x+=sin(uSway*.7+uv.x*3.5+uSeed)*uAmp*k;transformed.z+=cos(uSway*.55+uv.x*2.8+uSeed*1.3)*uAmp*.8*k;transformed.y+=sin(uSway*.4+uSeed)*.08*k;");
     };
     return mat;
   }
@@ -256,16 +298,17 @@ export class Organism {
     const B = this.body, R = rng(5);
     // bell (the organism) — clipped by the cut, so the wall and the cavity read
     const bellGeo = this.bellGeometry();
-    const bell = new THREE.Mesh(bellGeo, new THREE.MeshPhysicalMaterial({ color: 0xf7e4de, roughness: .2, transmission: .78, thickness: 1.4, ior: 1.34,
-      attenuationColor: new THREE.Color(0xe39a8e), attenuationDistance: 3.2, clearcoat: 1, clearcoatRoughness: .1, side: THREE.DoubleSide, clippingPlanes: [this.cut], clipShadows: true }));
+    const bell = new THREE.Mesh(bellGeo, this.enhance(new THREE.MeshPhysicalMaterial({ color: 0xf7e4de, roughness: .22, transmission: .78, thickness: 1.4, ior: 1.34,
+      attenuationColor: new THREE.Color(0xe39a8e), attenuationDistance: 3.2, clearcoat: 1, clearcoatRoughness: .08, side: THREE.DoubleSide, clippingPlanes: [this.cut], clipShadows: true,
+      normalMap: this.bellN, normalScale: new THREE.Vector2(.3, .3), clearcoatNormalMap: this.bellN, clearcoatNormalScale: new THREE.Vector2(.5, .5) }), { sss: 1.3, caustic: .8, sssColor: 0xffb49c }));
     B.add(bell); this.reg("organism", [bell], V(-2.3, 1.75, 1.3));
-    const cutFace = new THREE.Mesh(bellGeo, new THREE.MeshPhysicalMaterial({ color: 0xf0c9bf, roughness: .55, sheen: 1, sheenColor: new THREE.Color(0xffe0d6), side: THREE.BackSide, clippingPlanes: [this.cut], transparent: true, opacity: .7 }));
+    const cutFace = new THREE.Mesh(bellGeo, this.enhance(new THREE.MeshPhysicalMaterial({ color: 0xf0c9bf, roughness: .55, sheen: 1, sheenColor: new THREE.Color(0xffe0d6), side: THREE.BackSide, clippingPlanes: [this.cut], transparent: true, opacity: .7, normalMap: this.bellN, normalScale: new THREE.Vector2(.6, .6) }), { sss: 1.0, caustic: .3 }));
     B.add(cutFace); this.parts.get("organism")!.meshes.push(cutFace);
     this.reg("converge", [], V(2.95, .05, 1.1));
 
     // ── manubrium + mouth (Gatehouse) + genome helix inside
     const manCurve = new THREE.CatmullRomCurve3([V(0, 1.0, 0), V(.04, .3, .03), V(-.03, -.5, -.02), V(0, -1.3, 0), V(.02, -1.75, 0)]);
-    const manubrium = new THREE.Mesh(this.taper(manCurve, 48, 24, (t) => .34 - .08 * t + .03 * Math.sin(t * 14)), new THREE.MeshPhysicalMaterial({ color: 0xf1cfc4, roughness: .3, transmission: .7, thickness: .6, ior: 1.3, clearcoat: .8, attenuationColor: new THREE.Color(0xe8a89a), attenuationDistance: 1.5 }));
+    const manubrium = new THREE.Mesh(this.taper(manCurve, 48, 24, (t) => .34 - .08 * t + .03 * Math.sin(t * 14)), this.enhance(new THREE.MeshPhysicalMaterial({ color: 0xf1cfc4, roughness: .3, transmission: .7, thickness: .6, ior: 1.3, clearcoat: .8, attenuationColor: new THREE.Color(0xe8a89a), attenuationDistance: 1.5, normalMap: this.skinN, normalScale: new THREE.Vector2(.3, .3) }), { sss: 1.1, caustic: .4 }));
     B.add(manubrium); this.reg("organism", [manubrium]);
     const mouthShape = (() => { const pts: THREE.Vector3[] = []; for (let i = 0; i <= 64; i++) { const a = (i / 64) * Math.PI * 2, r = .42 + .12 * Math.cos(4 * a); pts.push(V(Math.cos(a) * r, -1.78 - .05 * Math.cos(4 * a), Math.sin(a) * r)); } return new THREE.CatmullRomCurve3(pts, true); })();
     const mouth = new THREE.Mesh(new THREE.TubeGeometry(mouthShape, 128, .11, 12, true), this.flesh(0xc46d62, { roughness: .3, clearcoat: 1 }));
@@ -279,7 +322,7 @@ export class Organism {
     B.add(helix); this.reg("genome", helix.children, V(.3, -.4, .35));
 
     // ── gastric pouches (Stores) around the stalk, Hippocampus coiling into one, Keel below
-    const storeMat = this.flesh(0xa65a4c, { roughness: .32, clearcoat: 1 });
+    const storeMat = this.flesh(0xa65a4c, { roughness: .32, clearcoat: 1, normalScale: new THREE.Vector2(.7, .7) }, { sss: 1.1, sssColor: 0xff7a5a });
     const stores: THREE.Mesh[] = [];
     for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2 + Math.PI / 4, m = new THREE.Mesh(this.blob(V(.62, .42, .5), { amp: .3, freq: 1.8, seed: 7 + k }), storeMat); m.position.set(Math.cos(a) * .95, .72, Math.sin(a) * .95); m.rotation.y = -a; B.add(m); stores.push(m); }
     this.reg("stores", stores, V(1.4, .95, 1.0));
@@ -350,7 +393,7 @@ export class Organism {
     graft.position.copy(gp).addScaledVector(gn, .03); graft.quaternion.setFromUnitVectors(V(0, 1, 0), gn); B.add(graft); this.reg("tissue", graft.children, gp.clone().add(V(-.3, .3, .3)));
 
     // ── canals: 16 radial (veins) from the pouches to a ring canal at the margin (Spine), Bone a pale strut
-    const canals: THREE.Curve<THREE.Vector3>[] = [], canalMat = this.flesh(0x2a63a8, { roughness: .25, clearcoat: 1, sheenColor: new THREE.Color(0x9bb8e8), emissive: 0x0b1e3a, emissiveIntensity: .4 });
+    const canals: THREE.Curve<THREE.Vector3>[] = [], canalMat = this.flesh(0x2a63a8, { roughness: .25, clearcoat: 1, sheenColor: new THREE.Color(0x9bb8e8), emissive: 0x0b1e3a, emissiveIntensity: .4, normalScale: new THREE.Vector2(.2, .2) }, { sss: .4, sssColor: 0x6aa6ff });
     const veinMeshes: THREE.Mesh[] = [];
     for (let k = 0; k < 16; k++) {
       const a = (k / 16) * Math.PI * 2 + Math.PI / 16, c = new THREE.CatmullRomCurve3([V(Math.cos(a) * .9, .78, Math.sin(a) * .9), V(Math.cos(a) * 1.7, .72 - .05 * (k % 2), Math.sin(a) * 1.7), V(Math.cos(a) * 2.35, .45, Math.sin(a) * 2.35), V(Math.cos(a) * 2.68, .12, Math.sin(a) * 2.68)]);
@@ -513,6 +556,7 @@ export class Organism {
     if (this.running) this.t += dt;
     const t = this.t, breath = Math.sin(t * Math.PI * 2 / 7);
     for (const u of this.swayUniforms) u.value = t;
+    this.uTime.value = t;
     for (const a of this.anim) a(t, this.running ? dt : 0, breath);
     // the cut always faces the viewer: a cutaway toward the camera
     const n = this.camera.getWorldDirection(new THREE.Vector3()); this.cut.normal.copy(n); this.cut.constant = -this.cutDepth - n.dot(this.body.position);
