@@ -49,7 +49,6 @@ export function Anatomy({ page = false }: { page?: boolean }) {
   }, []);
 
   useEffect(() => { orgRef.current?.setCut(cut / 100); }, [cut]);
-  useEffect(() => { orgRef.current?.say(a.parts[selected].gloss); }, [selected, a, ready]);
   useEffect(() => { orgRef.current?.setRunning(running); }, [running]);
   useEffect(() => { orgRef.current?.setAutoRotate(spin); }, [spin]);
   useEffect(() => { for (const l of LAYERS) orgRef.current?.setLayer(l.id, layers[l.id]); }, [layers, ready]);
@@ -67,8 +66,7 @@ export function Anatomy({ page = false }: { page?: boolean }) {
     const narrow = W < 640, step = narrow ? 16 : 18, pad = 6;
     for (const side of ["l", "r"] as const) {
       const col = vis.filter((it) => (it.x < W / 2) === (side === "l")).sort((p, q) => p.y - q.y);
-      // the right column stops above the Pupil inset (bottom-right), the left above the HUD
-      let y = 10; const maxY = side === "r" && orgRef.current?.eye ? H - Math.min(H * 0.26 * 0.6, 120) - 24 : H - 44;
+      let y = 10; const maxY = H - 44;
       col.forEach((it, i) => { const ly = Math.max(y, Math.min(it.y, maxY - (col.length - 1 - i) * step)); y = ly + step; (it as Projected & { ly: number }).ly = ly; });
       for (const it of col as Array<Projected & { ly: number }>) {
         const el = labelRefs.current[it.id]!; el.classList.toggle(styles.r, side === "r");
