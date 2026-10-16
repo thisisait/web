@@ -8,6 +8,14 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
+// Iris' eye: the design system's element, vendored (src/vendor/ait/README.md)
+import "../vendor/ait/iris-tone.js";
+import "../vendor/ait/iris-eye.js";
+import type { AitIrisEyeElement } from "../vendor/ait/ait";
 import { fbm, rng } from "./noise";
 import { causticTexture, normalTexture } from "./textures";
 import { PARTS, type LayerId, partById } from "./parts";
@@ -45,7 +53,6 @@ export class Organism {
   private selected: string | null = null;
   private ray = new THREE.Raycaster();
   private ptr = new THREE.Vector2();
-  private ptrIn = false;
   private downAt: [number, number] | null = null;
   private ro: ResizeObserver;
   private io: IntersectionObserver;
@@ -59,6 +66,16 @@ export class Organism {
   private skinN!: THREE.Texture;
   private bellN!: THREE.Texture;
   private sunDir = new THREE.Vector3(-3, 12, 6).normalize();
+  private composer!: EffectComposer;
+  private bloom!: UnrealBloomPass;
+  /** the live <ait-iris-eye>: shown as an inset and copied onto the bell every frame */
+  readonly eye: AitIrisEyeElement | null;
+  private eyeTex: THREE.CanvasTexture | null = null;
+  private eyeCanvas: HTMLCanvasElement | null = null;
+  private eyeIdleAt = 0;
+  private pendingSpeech: string | null = null;
+  /** what the eye will say once it has thought: the selected entry's gloss, set by the page */
+  say(text: string) { this.pendingSpeech = text; }
 
   constructor(private el: HTMLElement, private opts: OrganismOptions = {}) {
     const canvas = document.createElement("canvas");
@@ -69,6 +86,15 @@ export class Organism {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.25;
     this.renderer.localClippingEnabled = true;
+    // Iris' eye lives in the DOM (it needs the pointer and its own WebGL); the scene samples its canvas
+    this.eye = customElements.get("ait-iris-eye") ? (document.createElement("ait-iris-eye") as AitIrisEyeElement) : null;
+    if (this.eye) {
+      this.eye.setAttribute("state", "idle"); this.eye.setAttribute("framing", "wide"); this.eye.setAttribute("aria-label", "Pupil");
+      Object.assign(this.eye.style, { position: "absolute", right: "8px", bottom: "8px", width: "min(26%, 200px)", zIndex: "3", border: "1px solid rgba(200,214,228,.35)", borderRadius: "2px", pointerEvents: "none" });
+      el.appendChild(this.eye);
+      this.eyeCanvas = this.eye.shadowRoot?.querySelector("canvas") ?? null;
+      if (this.eyeCanvas) { this.eyeTex = new THREE.CanvasTexture(this.eyeCanvas); this.eyeTex.colorSpace = THREE.SRGBColorSpace; this.eyeTex.anisotropy = 4; }
+    }
     this.scene.environment = new THREE.PMREMGenerator(this.renderer).fromScene(new RoomEnvironment(), 0.04).texture;
     this.scene.fog = new THREE.FogExp2(0x07182b, 0.028);
 
@@ -83,6 +109,12 @@ export class Organism {
     this.controls.autoRotate = !opts.reducedMotion;
     this.controls.autoRotateSpeed = 0.3;
     this.running = !opts.reducedMotion;
+    // bloom: photophores, sparks and the nerve ring glow; everything below the threshold stays crisp
+    this.composer = new EffectComposer(this.renderer);
+    this.composer.addPass(new RenderPass(this.scene, this.camera));
+    this.bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.32, 0.5, 0.9);
+    this.composer.addPass(this.bloom);
+    this.composer.addPass(new OutputPass());
 
     for (const l of ["bell", "systems", "host", "canals", "nerves", "wiring", "limbs", "symbionts", "cells", "genome", "habitat", "vision"] as LayerId[]) this.layers.set(l, true);
 
@@ -96,7 +128,7 @@ export class Organism {
     this.applyLayers();
 
     canvas.addEventListener("pointermove", this.onMove);
-    canvas.addEventListener("pointerleave", () => { this.ptrIn = false; this.setHover(null); });
+    canvas.addEventListener("pointerleave", () => this.setHover(null));
     canvas.addEventListener("pointerdown", (e) => { this.downAt = [e.clientX, e.clientY]; });
     canvas.addEventListener("pointerup", (e) => {
       if (this.downAt && Math.hypot(e.clientX - this.downAt[0], e.clientY - this.downAt[1]) < 6 && this.hovered) this.select(this.hovered);
@@ -117,7 +149,10 @@ export class Organism {
   setAutoRotate(on: boolean) { this.controls.autoRotate = on; }
   get isRunning() { return this.running; }
   get autoRotate() { return this.controls.autoRotate; }
-  select(id: string) { this.selected = id; this.paint(); this.opts.onSelect?.(id); }
+  select(id: string) { this.selected = id; this.paint(); this.opts.onSelect?.(id); this.think(); }
+  /** the eye reads the entry: a short think, then it speaks, then it rests */
+  think() { if (!this.eye) return; this.eye.state = "thinking"; this.eyeIdleAt = this.t + 1.1; }
+  speak(text: string) { if (!this.eye) return; this.eye.feel(text, "iris"); this.eye.state = "speaking"; this.eyeIdleAt = this.t + 1.1 + Math.min(6, text.length / 40); }
   dispose() {
     this.disposed = true;
     cancelAnimationFrame(this.raf);
@@ -128,6 +163,7 @@ export class Organism {
       const mat = m.material as THREE.Material | THREE.Material[] | undefined;
       if (Array.isArray(mat)) mat.forEach((x) => x.dispose()); else mat?.dispose();
     });
+    this.composer.dispose(); this.eyeTex?.dispose(); this.eye?.remove();
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }
@@ -159,7 +195,7 @@ export class Organism {
     })();
     const shafts = new THREE.Group();
     for (let i = 0; i < 5; i++) {
-      const m = new THREE.Mesh(new THREE.PlaneGeometry(1.4 + i * .5, 26), new THREE.MeshBasicMaterial({ map: shaftTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: .35, fog: false }));
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(1.4 + i * .5, 26), new THREE.MeshBasicMaterial({ map: shaftTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: .2, fog: false }));
       m.position.set(-6 + i * 3.1, 6, -7 - (i % 2) * 4); m.rotation.z = (i - 2) * .06; shafts.add(m);
     }
     this.scene.add(shafts);
@@ -347,31 +383,20 @@ export class Organism {
       const e = new THREE.Mesh(this.taper(new THREE.CatmullRomCurve3(pts), 140, 12, (t) => .1 * (1 - t * .7)), this.flesh(0xd7a99a)); B.add(e); ears.push(e);
     }
     this.reg("ears", ears, this.onBell(V(.78, .55, .3)).add(V(.3, .25, .1)));
-    // the eye
-    const irisTex = (() => {
-      const c = document.createElement("canvas"); c.width = 1024; c.height = 512; const g = c.getContext("2d")!;
-      g.fillStyle = "#f1ebe4"; g.fillRect(0, 0, 1024, 512);
-      const RR = rng(3);
-      for (let i = 0; i < 80; i++) { g.strokeStyle = `rgba(160,40,40,${.05 + RR() * .08})`; g.lineWidth = .6 + RR(); g.beginPath(); let x = RR() * 1024, y = RR() > .5 ? 0 : 512; g.moveTo(x, y); for (let k = 0; k < 6; k++) { x += (RR() - .5) * 60; y += (y < 256 ? 1 : -1) * 22; g.lineTo(x, y); } g.stroke(); }
-      const cx = 512, cy = 256, Ri = 86, gr = g.createRadialGradient(cx, cy, 20, cx, cy, Ri);
-      gr.addColorStop(0, "#8a6a3e"); gr.addColorStop(.38, "#8a6a3e"); gr.addColorStop(.48, "#4f7099"); gr.addColorStop(.9, "#35506f"); gr.addColorStop(1, "#1d2a3b");
-      g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, Ri, 0, 7); g.fill();
-      for (let i = 0; i < 360; i++) { const a = (i / 360) * Math.PI * 2, r0 = 26 + RR() * 7, r1 = Ri - RR() * 12; g.strokeStyle = `rgba(${RR() > .5 ? "220,230,240" : "20,30,45"},${.08 + RR() * .16})`; g.lineWidth = .8; g.beginPath(); g.moveTo(cx + Math.cos(a) * r0, cy + Math.sin(a) * r0); g.lineTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1); g.stroke(); }
-      g.fillStyle = "#07080a"; g.beginPath(); g.arc(cx, cy, 28, 0, 7); g.fill();
-      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
-    })();
-    const eye = new THREE.Group(), eyeball = new THREE.Mesh(new THREE.SphereGeometry(.36, 64, 48), new THREE.MeshPhysicalMaterial({ map: irisTex, roughness: .08, clearcoat: 1, clearcoatRoughness: .02 }));
-    const lid = new THREE.Mesh(new THREE.TorusGeometry(.37, .09, 20, 64), this.flesh(0xd2a08f));
-    eye.add(eyeball, lid); const eyePos = this.onBell(V(.3, .6, .74)); eye.position.copy(eyePos); B.add(eye);
-    this.reg("pupil", [eyeball, lid], eyePos.clone().add(V(.25, .35, .25)));
-    const q = new THREE.Quaternion(), look = new THREE.Vector3(), ew = new THREE.Vector3();
-    this.anim.push(() => {
-      eye.getWorldPosition(ew);
-      if (this.ptrIn) { this.ray.setFromCamera(this.ptr, this.camera); look.copy(this.ray.ray.origin).addScaledVector(this.ray.ray.direction, this.camera.position.distanceTo(ew) * .8); } else look.copy(this.camera.position);
-      const lp = eye.worldToLocal(look.clone()).normalize();
-      q.setFromUnitVectors(V(0, 0, 1), lp).multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), -Math.PI / 2));
-      eyeball.quaternion.slerp(q, .12); lid.lookAt(this.camera.position);
-    });
+    // the eye: a curved decal on the exumbrella, textured live from <ait-iris-eye>
+    const eyeDir = V(.28, .5, .82).normalize(), eyePos = this.onBell(eyeDir);
+    const eyeGeo = new THREE.PlaneGeometry(1.5, .75, 30, 15), ep = eyeGeo.attributes.position as THREE.BufferAttribute;
+    const tU = V(0, 1, 0).cross(eyeDir).normalize(), tV = eyeDir.clone().cross(tU).normalize();
+    for (let i = 0; i < ep.count; i++) { // bend the sheet onto the bell: offsets become small rotations of the surface direction
+      const x = ep.getX(i), y = ep.getY(i), d = eyeDir.clone().addScaledVector(tU, x * .28).addScaledVector(tV, y * .28).normalize();
+      const q0 = this.onBell(d).addScaledVector(d, .025); ep.setXYZ(i, q0.x, q0.y, q0.z);
+    }
+    eyeGeo.computeVertexNormals();
+    // soft elliptical mask: the skin of the eye fades into the bell instead of ending in a rectangle
+    const maskTex = (() => { const c = document.createElement("canvas"); c.width = 256; c.height = 128; const g = c.getContext("2d")!; const gr = g.createRadialGradient(128, 64, 10, 128, 64, 64); gr.addColorStop(0, "#fff"); gr.addColorStop(.62, "#fff"); gr.addColorStop(1, "#000"); g.save(); g.scale(1, 1); g.fillStyle = "#000"; g.fillRect(0, 0, 256, 128); g.translate(128, 64); g.scale(2, 1); g.translate(-128, -64); g.fillStyle = gr; g.fillRect(0, 0, 256, 128); g.restore(); return new THREE.CanvasTexture(c); })();
+    const eyeMat = new THREE.MeshPhysicalMaterial({ map: this.eyeTex ?? undefined, alphaMap: maskTex, color: this.eyeTex ? 0xffffff : 0x2b3a5c, roughness: .35, clearcoat: 1, clearcoatRoughness: .05, transparent: true, depthWrite: false, opacity: this.eyeTex ? 1 : .85 });
+    const eyeDecal = new THREE.Mesh(eyeGeo, eyeMat); B.add(eyeDecal);
+    this.reg("pupil", [eyeDecal], eyePos.clone().add(V(.25, .35, .25)));
 
     // ── gonads (Forge), Archive lamellae, Commons, Backoffice, Receptor pore, tissue graft
     const forge: THREE.Mesh[] = [];
@@ -515,7 +540,7 @@ export class Organism {
   // ── picking, highlight ─────────────────────────────────────────────────
   private onMove = (e: PointerEvent) => {
     const r = this.renderer.domElement.getBoundingClientRect();
-    this.ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); this.ptrIn = true;
+    this.ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     this.ray.setFromCamera(this.ptr, this.camera);
     const hits = this.ray.intersectObjects(this.pickables.filter((m) => m.visible), false);
     // the bell only counts where the cut has not opened it; the twin never blocks
@@ -524,6 +549,7 @@ export class Organism {
   };
   private setHover(id: string | null) {
     if (id === this.hovered) return; this.hovered = id; this.paint();
+    if (this.eye && this.eye.state !== "speaking" && this.eye.state !== "thinking") this.eye.state = id ? "listening" : "idle";
     this.renderer.domElement.style.cursor = id ? "pointer" : "grab"; this.opts.onHover?.(id);
   }
   private paint() {
@@ -546,6 +572,7 @@ export class Organism {
   private resize() {
     const w = this.el.clientWidth, h = this.el.clientHeight; if (!w || !h) return;
     this.renderer.setSize(w, h, false); this.camera.aspect = w / h; this.camera.updateProjectionMatrix();
+    const dpr = this.renderer.getPixelRatio(); this.composer.setSize(w, h); this.composer.setPixelRatio(dpr); this.bloom.resolution.set(w * dpr / 2, h * dpr / 2);
   }
   private kick() { if (!this.raf && !this.disposed) { this.last = performance.now(); this.raf = requestAnimationFrame(this.frame); } }
   private frame = (now: number) => {
@@ -560,7 +587,12 @@ export class Organism {
     for (const a of this.anim) a(t, this.running ? dt : 0, breath);
     // the cut always faces the viewer: a cutaway toward the camera
     const n = this.camera.getWorldDirection(new THREE.Vector3()); this.cut.normal.copy(n); this.cut.constant = -this.cutDepth - n.dot(this.body.position);
-    this.controls.update(); this.renderer.render(this.scene, this.camera);
+    if (this.eye) {
+      if (this.eyeIdleAt && t > this.eyeIdleAt) { this.eyeIdleAt = 0; this.eye.state = this.hovered ? "listening" : "idle"; }
+      else if (this.eye.state === "thinking" && t > this.eyeIdleAt - .05 && this.pendingSpeech) { const txt = this.pendingSpeech; this.pendingSpeech = null; this.speak(txt); }
+      if (this.eyeTex) this.eyeTex.needsUpdate = true;
+    }
+    this.controls.update(); this.composer.render();
     this.project(breath);
     this.raf = requestAnimationFrame(this.frame);
   };
